@@ -130,8 +130,8 @@ async function uploadMuxVideo(
     try {
       console.log(`  [Mux] Creating asset for ${videoId} from: ${url.substring(0, 80)}...`);
       const asset = await mux.video.assets.create({
-        input: [{ url }],
-        playback_policy: ['public'],
+        inputs: [{ url }],
+        playback_policies: ['public'],
       });
 
       const assetId = asset.id;
@@ -288,10 +288,12 @@ async function main() {
   const sampleDonations = seedData.donations.sample_donations;
   const rules = seedData.donations.additional_generation_rules;
   const genericMessages: string[] = rules.generic_messages;
-  const fundraiserIds = seedData.fundraisers.map(
+  const fundraiserIds: string[] = seedData.fundraisers.map(
     (f: { id: string }) => f.id,
   );
-  const userIds = seedData.users.map((u: { id: string }) => u.id);
+  const userIds: string[] = seedData.users.map(
+    (u: { id: string }) => u.id,
+  );
 
   // Insert sample donations verbatim
   for (const d of sampleDonations) {
