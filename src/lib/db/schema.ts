@@ -383,3 +383,21 @@ export const follows = pgTable(
     index('follows_following_id_idx').on(table.followingId),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// Observability
+// ---------------------------------------------------------------------------
+
+export const analyticsEvents = pgTable('analytics_events', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text('user_id').references(() => users.id, {
+    onDelete: 'set null',
+  }),
+  eventType: text('event_type').notNull(),
+  eventData: jsonb('event_data'),
+  pagePath: text('page_path'),
+  sessionId: text('session_id'),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
+});
