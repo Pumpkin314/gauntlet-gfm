@@ -164,8 +164,8 @@ gh issue create --repo $REPO --title "PR 1.3: Auth (Google OAuth)" --milestone "
 - Session persists across page navigations
 - /studio redirects to /sign-in when not authenticated"
 
-gh issue create --repo $REPO --title "PR 1.4: Seed Data + Vercel KV" --milestone "TB1: Foundation" --label "data,agent-b" --body "## Scope
-- Vercel KV (\`@vercel/kv\`) connection + cache helper utilities
+gh issue create --repo $REPO --title "PR 1.4: Seed Data + Redis Cache" --milestone "TB1: Foundation" --label "data,agent-b" --body "## Scope
+- Redis (\`ioredis\` via \`REDIS_URL\`) connection + cache helper utilities
 - Seed script (\`lib/db/seed.ts\`) reads \`docs/seed-data.json\` as single source of truth
 - 8 users, 2 communities, 8 fundraisers, 40-60 donations (generated), 17 content posts, comments, reactions, follows, community memberships
 - All media URLs (images, Mux playback IDs) are defined in seed-data.json
@@ -175,7 +175,7 @@ gh issue create --repo $REPO --title "PR 1.4: Seed Data + Vercel KV" --milestone
 ## Prerequisites (verify before starting)
 - Mux API credentials in .env.local (MUX_TOKEN_ID + MUX_TOKEN_SECRET)
 - Vercel Postgres provisioned and DATABASE_URL in .env.local
-- Vercel KV provisioned and KV_REST_API_URL + KV_REST_API_TOKEN in .env.local
+- Redis provisioned and REDIS_URL in .env.local
 
 ## Dependencies
 - PR 1.2 must merge first (schema exists)
@@ -184,7 +184,7 @@ gh issue create --repo $REPO --title "PR 1.4: Seed Data + Vercel KV" --milestone
 - \`npm run db:seed\` populates all tables with realistic data
 - Row counts logged after seeding
 - Mux videos uploaded and playback IDs stored in content_posts
-- Vercel KV connection verified with test get/set
+- Redis connection verified with test get/set
 - cachedQuery helper works with typed get/set/invalidation/TTL"
 
 gh issue create --repo $REPO --title "PR 1.5: Root Layout + Navigation" --milestone "TB1: Foundation" --label "ui,agent-a" --body "## Scope

@@ -48,11 +48,11 @@ These are MANUAL steps that must be done by the human before the orchestrator ag
 - [ ] **Copy CLAUDE.md** into repo root
 - [ ] **Google OAuth credentials**: Follow `docs/setup-guides.md` Step 1. Get `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. Add to `.env.local`.
 - [ ] **Vercel project**: Create Vercel project linked to the repo. Get Vercel Postgres database provisioned. Copy `DATABASE_URL` to `.env.local`.
-- [ ] **Vercel KV (Redis)**: In Vercel dashboard → Storage → Create KV Database. Environment variables `KV_REST_API_URL` and `KV_REST_API_TOKEN` are auto-injected into deployments. For local dev, pull them via `vercel env pull .env.local`.
+- [ ] **Redis (KV)**: Provisioned via Vercel dashboard. Environment variable `REDIS_URL` is auto-injected into deployments. For local dev, pull via `vercel env pull .env.local`.
 - [ ] **Mux account**: Sign up at https://dashboard.mux.com. Get `MUX_TOKEN_ID` and `MUX_TOKEN_SECRET`. Add to `.env.local`. (Video uploads are automated by the seed script — no manual uploads needed.)
 - [ ] **Generate NextAuth secret**: `openssl rand -base64 32` → add as `NEXTAUTH_SECRET` in `.env.local`.
 - [ ] **Run GitHub Issues script**: `bash docs/setup-github-issues.sh owner/repo` (from `docs/setup-guides.md`)
-- [ ] **Verify .env.local** has all required vars: `DATABASE_URL`, `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL=http://localhost:3000`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `MUX_TOKEN_ID`, `MUX_TOKEN_SECRET`, `NEXT_PUBLIC_MUX_ENV_KEY`
+- [ ] **Verify .env.local** has all required vars: `DATABASE_URL`, `REDIS_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL=http://localhost:3000`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `MUX_TOKEN_ID`, `MUX_TOKEN_SECRET`, `NEXT_PUBLIC_MUX_ENV_KEY`
 
 Once all boxes are checked, tell the orchestrator agent: "Start TB1. Sprint plan is at docs/sprint-plan.md. Seed data at docs/seed-data.json. Follow CLAUDE.md methodology."
 
@@ -119,7 +119,7 @@ MVP = Epics TB1 through TB7. At the end of TB7, the app is demo-ready with all f
 **Subtasks**:
 - [ ] `tsconfig.json` — strict: true, paths: `@/*` → `./src/*`
 - [ ] `tailwind.config.ts` — extend with GFM color palette (green primary: `#00b964`, dark: `#1d1d1d`)
-- [ ] `.env.example` — DATABASE_URL, KV_REST_API_URL, KV_REST_API_TOKEN, NEXTAUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, MUX_TOKEN_ID, MUX_TOKEN_SECRET, NEXT_PUBLIC_MUX_ENV_KEY
+- [ ] `.env.example` — DATABASE_URL, REDIS_URL, NEXTAUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, MUX_TOKEN_ID, MUX_TOKEN_SECRET, NEXT_PUBLIC_MUX_ENV_KEY
 
 ### PR 1.2: Database Schema + Migrations
 **Branch**: `tb1/schema`
@@ -177,7 +177,7 @@ MVP = Epics TB1 through TB7. At the end of TB7, the app is demo-ready with all f
 | `seed: content posts — auto-generated (5 from seed-data.json)` | 2 milestones, 2 community pulses, 1 donor spotlight. author_id = null, auto_gen_data from JSON. |
 | `seed: comments, reactions, follows, community_members` | From seed-data.json arrays. Reactions generated per distribution rules. |
 | `seed: npm script "db:seed"` | Idempotent — clears all tables then re-seeds. Add to package.json scripts. |
-| `deps: @vercel/kv + cache helpers` | `lib/cache.ts` — `cachedQuery(key, ttl, queryFn)` helper |
+| `deps: ioredis + cache helpers` | `lib/cache.ts` — `cachedQuery(key, ttl, queryFn)` helper |
 
 **Subtasks**:
 - [ ] Mux video uploads are AUTOMATED by the seed script: for each video in seed-data.json mux_videos array, call Mux API with the Pexels source URL, poll until ready, capture playback ID, and write to DB. Handle rate limits and fallback URLs.
@@ -185,7 +185,7 @@ MVP = Epics TB1 through TB7. At the end of TB7, the app is demo-ready with all f
 - [ ] Avatar URLs use pravatar.cc pattern: `https://i.pravatar.cc/128?u={user_id}@gfm-demo.com`
 - [ ] Donation generation: use sample_donations verbatim first, then generate remaining to hit 40-60 total using generic_messages and amount_distribution from seed-data.json
 - [ ] Seed data tells a coherent story: Janahan organizes Watch Duty fundraiser, Tim Cadogan leads leaderboard, Surveen runs Bay Area Mutual Aid
-- [ ] Vercel KV: `@vercel/kv` package, cache helpers with typed get/set, TTL, invalidation by key pattern
+- [ ] Redis (`ioredis` package via `REDIS_URL`): cache helpers with typed get/set, TTL, invalidation by key pattern
 - [ ] Verify after seeding: run a quick query counting rows in each table, log the results
 
 ### PR 1.5: Root Layout + Navigation
