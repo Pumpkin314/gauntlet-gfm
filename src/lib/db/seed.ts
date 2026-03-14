@@ -429,6 +429,25 @@ async function main() {
   // Step 7: Mux video uploads
   // ────────────────────────────────────────────────────────────────────────
   console.log('Uploading videos to Mux...');
+
+  // Clean up old Mux assets to stay within free tier limit (10 assets)
+  console.log('  [Mux] Cleaning up old assets...');
+  try {
+    const existingAssets = await mux.video.assets.list();
+    let deletedCount = 0;
+    for await (const asset of existingAssets) {
+      try {
+        await mux.video.assets.delete(asset.id);
+        deletedCount++;
+      } catch {
+        // Ignore deletion errors for individual assets
+      }
+    }
+    console.log(`  [Mux] Deleted ${deletedCount} old assets.`);
+  } catch (err) {
+    console.warn('  [Mux] Could not clean up old assets:', err);
+  }
+
   const muxVideos = seedData.media_setup.mux_videos.videos;
   const muxPlaybackMap = new Map<
     string,
