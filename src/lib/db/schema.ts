@@ -214,3 +214,96 @@ export const fundraisers = pgTable(
     index('fundraisers_status_idx').on(table.status),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// Financial / social layer
+// ---------------------------------------------------------------------------
+
+export const donations = pgTable(
+  'donations',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    donorId: text('donor_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    fundraiserId: text('fundraiser_id')
+      .notNull()
+      .references(() => fundraisers.id, { onDelete: 'cascade' }),
+    amountCents: integer('amount_cents').notNull(),
+    message: text('message'),
+    isAnonymous: boolean('is_anonymous').default(false),
+    source: donationSourceEnum('source').default('fundraiser_page'),
+    createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
+  },
+  (table) => [
+    index('donations_fundraiser_id_idx').on(table.fundraiserId),
+    index('donations_donor_id_idx').on(table.donorId),
+    index('donations_created_at_idx').on(table.createdAt),
+  ],
+);
+
+export const contentPosts = pgTable(
+  'content_posts',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    authorId: text('author_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    fundraiserId: text('fundraiser_id').references(() => fundraisers.id, {
+      onDelete: 'set null',
+    }),
+    communityId: text('community_id').references(() => communities.id, {
+      onDelete: 'set null',
+    }),
+    contentType: contentTypeEnum('content_type').notNull(),
+    title: text('title'),
+    body: text('body'),
+    mediaUrl: text('media_url'),
+    muxPlaybackId: text('mux_playback_id'),
+    muxAssetId: text('mux_asset_id'),
+    thumbnailUrl: text('thumbnail_url'),
+    autoGenData: jsonb('auto_gen_data'),
+    /** Denormalized: incremented by view tracking */
+    viewCount: integer('view_count').default(0),
+    /** Denormalized: count of reactions on this post */
+    reactionCount: integer('reaction_count').default(0),
+    /** Denormalized: count of comments on this post */
+    commentCount: integer('comment_count').default(0),
+    commentsEnabled: boolean('comments_enabled').default(true),
+    status: postStatusEnum('status').default('published'),
+    createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow(),
+  },
+  (table) => [
+    index('content_posts_community_id_idx').on(table.communityId),
+    index('content_posts_fundraiser_id_idx').on(table.fundraiserId),
+    index('content_posts_author_id_idx').on(table.authorId),
+    index('content_posts_created_at_idx').on(table.createdAt),
+  ],
+);
+
+export const reactions = pgTable(
+  'reactions',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    contentPostId: text('content_post_id')
+      .notNull()
+      .references(() => contentPosts.id, { onDelete: 'cascade' }),
+    reactionType: reactionTypeEnum('reaction_type').notNull(),
+    microDonationCents: integer('micro_donation_cents'),
+    createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
+  },
+  (table) => [
+    unique('reactions_user_post_unique').on(table.userId, table.contentPostId),
+    index('reactions_content_post_id_idx').on(table.contentPostId),
+  ],
+);
