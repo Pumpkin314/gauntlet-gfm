@@ -1,7 +1,5 @@
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/ui/button";
-
 export default function Home() {
   return (
     <section className="flex flex-col items-center justify-center px-4 py-24 text-center sm:py-32">
@@ -16,10 +14,7 @@ export default function Home() {
       </p>
       <Link
         href="#"
-        className={buttonVariants({
-          size: "lg",
-          className: "mt-8 bg-gfm-green text-white hover:bg-gfm-green/90",
-        })}
+        className="mt-8 inline-flex h-9 items-center justify-center rounded-lg bg-gfm-green px-4 text-sm font-medium text-white transition-colors hover:bg-gfm-green/90"
       >
         Discover fundraisers
       </Link>
