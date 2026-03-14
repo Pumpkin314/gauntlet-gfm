@@ -307,3 +307,79 @@ export const reactions = pgTable(
     index('reactions_content_post_id_idx').on(table.contentPostId),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// Engagement
+// ---------------------------------------------------------------------------
+
+export const comments = pgTable(
+  'comments',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    contentPostId: text('content_post_id')
+      .notNull()
+      .references(() => contentPosts.id, { onDelete: 'cascade' }),
+    donationId: text('donation_id').references(() => donations.id, {
+      onDelete: 'set null',
+    }),
+    body: text('body').notNull(),
+    /** Denormalized: count of upvotes on this comment */
+    upvotes: integer('upvotes').default(0),
+    /** Denormalized: count of downvotes on this comment */
+    downvotes: integer('downvotes').default(0),
+    createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
+  },
+  (table) => [index('comments_content_post_id_idx').on(table.contentPostId)],
+);
+
+export const commentVotes = pgTable(
+  'comment_votes',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    commentId: text('comment_id')
+      .notNull()
+      .references(() => comments.id, { onDelete: 'cascade' }),
+    vote: integer('vote').notNull(), // 1 or -1
+    createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
+  },
+  (table) => [
+    unique('comment_votes_user_comment_unique').on(
+      table.userId,
+      table.commentId,
+    ),
+  ],
+);
+
+export const follows = pgTable(
+  'follows',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    followerId: text('follower_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    followingId: text('following_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { mode: 'date' }).defaultNow(),
+  },
+  (table) => [
+    unique('follows_follower_following_unique').on(
+      table.followerId,
+      table.followingId,
+    ),
+    index('follows_follower_id_idx').on(table.followerId),
+    index('follows_following_id_idx').on(table.followingId),
+  ],
+);
