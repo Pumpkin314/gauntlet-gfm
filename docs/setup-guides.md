@@ -164,35 +164,28 @@ gh issue create --repo $REPO --title "PR 1.3: Auth (Google OAuth)" --milestone "
 - Session persists across page navigations
 - /studio redirects to /sign-in when not authenticated"
 
-gh issue create --repo $REPO --title "PR 1.4: Seed Data + Redis" --milestone "TB1: Foundation" --label "data,agent-b" --body "## Scope
-- Upstash Redis connection + cache helper utilities
+gh issue create --repo $REPO --title "PR 1.4: Seed Data + Vercel KV" --milestone "TB1: Foundation" --label "data,agent-b" --body "## Scope
+- Vercel KV (\`@vercel/kv\`) connection + cache helper utilities
 - Seed script (\`lib/db/seed.ts\`) reads \`docs/seed-data.json\` as single source of truth
 - 8 users, 2 communities, 8 fundraisers, 40-60 donations (generated), 17 content posts, comments, reactions, follows, community memberships
 - All media URLs (images, Mux playback IDs) are defined in seed-data.json
+- Mux video uploads are AUTOMATED by the seed script (calls Mux API with Pexels URLs, polls until ready, captures playback IDs)
 - npm script: \`db:seed\` (idempotent — clears and re-seeds)
 
-## Prerequisites (MANUAL — verify before starting)
-- Mux playback IDs pasted into docs/seed-data.json (check for PASTE_HERE — if found, STOP)
+## Prerequisites (verify before starting)
+- Mux API credentials in .env.local (MUX_TOKEN_ID + MUX_TOKEN_SECRET)
 - Vercel Postgres provisioned and DATABASE_URL in .env.local
-- Upstash Redis provisioned and REDIS_URL in .env.local
-
-## Done when
-- \`npm run db:seed\` populates all tables
-- Row counts logged after seeding
-- Redis connection verified with test get/set
-- cachedQuery helper works with typed TTL"
+- Vercel KV provisioned and KV_REST_API_URL + KV_REST_API_TOKEN in .env.local
 
 ## Dependencies
 - PR 1.2 must merge first (schema exists)
 
-## Prerequisites (manual)
-- Mux account with API credentials
-- Demo videos uploaded to Mux
-
 ## Done when
 - \`npm run db:seed\` populates all tables with realistic data
-- Redis connection verified
-- cachedQuery helper works with typed get/set/invalidation"
+- Row counts logged after seeding
+- Mux videos uploaded and playback IDs stored in content_posts
+- Vercel KV connection verified with test get/set
+- cachedQuery helper works with typed get/set/invalidation/TTL"
 
 gh issue create --repo $REPO --title "PR 1.5: Root Layout + Navigation" --milestone "TB1: Foundation" --label "ui,agent-a" --body "## Scope
 - Root layout with GFM-style nav (logo, Donate/Fundraise/About dropdowns, search placeholder, auth button)
