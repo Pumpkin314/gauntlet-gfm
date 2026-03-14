@@ -1,21 +1,21 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 
-const geistSans = Geist({
+import { SiteFooter } from "@/components/nav/site-footer";
+import { SiteNav } from "@/components/nav/site-nav";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
   variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: "GoFundMe Reimagined",
-  description: "A reimagined crowdfunding platform",
+  description:
+    "A reimagined crowdfunding platform — discover fundraisers, donate, and make a difference.",
 };
 
 export default function RootLayout({
@@ -25,10 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${inter.variable} antialiased`}>
+        <SiteNav />
+        <main className="min-h-[calc(100vh-64px)]">{children}</main>
+        <SiteFooter />
       </body>
     </html>
   );
