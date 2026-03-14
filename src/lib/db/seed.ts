@@ -54,20 +54,81 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
+ * Resolve Pexels page URLs to direct CDN video file URLs.
+ * Pexels page URLs return HTML, so Mux cannot ingest them.
+ * We extract the video ID and try multiple resolution variants.
+ */
+function getPexelsDirectUrls(pageUrl: string): string[] {
+  const match = pageUrl.match(/(\d+)\/?$/);
+  if (!match) return [];
+  const id = match[1];
+  // Try multiple resolution/fps variants (Pexels isn't consistent)
+  return [
+    `https://videos.pexels.com/video-files/${id}/${id}-hd_1920_1080_30fps.mp4`,
+    `https://videos.pexels.com/video-files/${id}/${id}-hd_1920_1080_25fps.mp4`,
+    `https://videos.pexels.com/video-files/${id}/${id}-hd_1280_720_30fps.mp4`,
+    `https://videos.pexels.com/video-files/${id}/${id}-hd_1280_720_25fps.mp4`,
+    `https://videos.pexels.com/video-files/${id}/${id}-uhd_2560_1440_30fps.mp4`,
+    `https://videos.pexels.com/video-files/${id}/${id}-uhd_2560_1440_25fps.mp4`,
+    `https://videos.pexels.com/video-files/${id}/${id}-sd_960_540_30fps.mp4`,
+    `https://videos.pexels.com/video-files/${id}/${id}-sd_960_540_25fps.mp4`,
+    `https://videos.pexels.com/video-files/${id}/${id}-sd_640_360_30fps.mp4`,
+    `https://videos.pexels.com/video-files/${id}/${id}-sd_640_360_25fps.mp4`,
+  ];
+}
+
+/**
+ * Well-known public MP4 test videos as final fallbacks.
+ * These are guaranteed to be accessible by Mux.
+ */
+const PUBLIC_FALLBACK_VIDEOS = [
+  'https://storage.googleapis.com/muxdemofiles/mux-video-intro.mp4',
+  'https://test-streams.mux.dev/x36xhzz/x36xhzz.mp4',
+];
+
+/**
  * Upload a video to Mux from a URL, poll until ready, and return the
- * playback ID and asset ID. Falls back to a secondary URL if provided.
- * Returns null values if both attempts fail.
+ * playback ID and asset ID. Resolves Pexels page URLs to direct CDN URLs.
+ * Falls back to public test videos if Pexels CDN is unavailable.
+ * Returns null values if all attempts fail.
  */
 async function uploadMuxVideo(
   videoId: string,
   sourceUrl: string,
   fallbackUrl: string | null,
 ): Promise<{ playbackId: string | null; assetId: string | null }> {
-  const urls = [sourceUrl, fallbackUrl].filter(Boolean) as string[];
+  const pageUrls = [sourceUrl, fallbackUrl].filter(Boolean) as string[];
 
-  for (const url of urls) {
+  // Build list of direct URLs to try: resolved Pexels CDN variants, then fallbacks
+  const candidateUrls: string[] = [];
+  for (const pageUrl of pageUrls) {
+    candidateUrls.push(...getPexelsDirectUrls(pageUrl));
+  }
+  // Add public fallback videos as last resort
+  candidateUrls.push(...PUBLIC_FALLBACK_VIDEOS);
+
+  // Pre-filter: HEAD request to find URLs that actually exist (200 OK)
+  const urlsToTry: string[] = [];
+  for (const url of candidateUrls) {
     try {
-      console.log(`  [Mux] Creating asset for ${videoId} from: ${url}`);
+      const headResp = await fetch(url, { method: 'HEAD', redirect: 'follow' });
+      if (headResp.ok) {
+        console.log(`  [Pexels] Found accessible video: ${url.substring(0, 80)}...`);
+        urlsToTry.push(url);
+        break; // Only need one working URL per source
+      }
+    } catch {
+      // URL not accessible, skip
+    }
+  }
+  // If none found, use the fallback directly
+  if (urlsToTry.length === 0) {
+    urlsToTry.push(...PUBLIC_FALLBACK_VIDEOS);
+  }
+
+  for (const url of urlsToTry) {
+    try {
+      console.log(`  [Mux] Creating asset for ${videoId} from: ${url.substring(0, 80)}...`);
       const asset = await mux.video.assets.create({
         input: [{ url }],
         playback_policy: ['public'],
@@ -89,14 +150,14 @@ async function uploadMuxVideo(
         }
         if (current.status === 'errored') {
           console.warn(
-            `  [Mux] Asset ${assetId} errored for URL: ${url}. Trying next...`,
+            `  [Mux] Asset ${assetId} errored for URL: ${url.substring(0, 80)}. Trying next...`,
           );
           break;
         }
         await sleep(5000);
       }
     } catch (err) {
-      console.warn(`  [Mux] Failed to upload ${videoId} from ${url}:`, err);
+      console.warn(`  [Mux] Failed to upload ${videoId} from ${url.substring(0, 80)}:`, err);
     }
   }
 
