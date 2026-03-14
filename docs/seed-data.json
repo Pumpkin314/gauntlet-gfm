@@ -1,0 +1,702 @@
+{
+  "_meta": {
+    "description": "Seed data for GoFundMe Reimagined. Single source of truth for all demo data.",
+    "location_in_repo": "docs/seed-data.json",
+    "usage": "The seed script (lib/db/seed.ts) reads this file and populates all Postgres tables. Run via: npm run db:seed",
+    "idempotent": "Script clears all tables before inserting. Safe to re-run.",
+    "important": "Before running, complete ALL manual prerequisites in the media_setup section."
+  },
+
+  "media_setup": {
+    "_instructions": "MANUAL PREREQUISITES — Complete before running seed script or before PR 1.4 begins.",
+
+    "step_1_mux_videos": {
+      "_how": "Go to https://dashboard.mux.com → Assets → Create new asset. Upload each video. Copy the Playback ID from the asset details page. Paste into the mux_playback_id fields in the content_posts section below.",
+      "_alt": "Or use Mux API: curl https://api.mux.com/video/v1/assets -H 'Content-Type: application/json' -u '${MUX_TOKEN_ID}:${MUX_TOKEN_SECRET}' -d '{\"input\": \"URL\", \"playback_policy\": [\"public\"]}'",
+      "videos_to_upload": [
+        {
+          "id": "video_1",
+          "description": "Firefighter response footage, 15-20s",
+          "for_post": "cp_v1 — Janahan: Why I support Watch Duty",
+          "source": "https://www.pexels.com/video/firefighters-putting-out-a-fire-on-a-tree-7578867/",
+          "fallback": "https://www.pexels.com/video/firefighters-extinguishing-fire-7578542/",
+          "mux_playback_id": "PASTE_HERE"
+        },
+        {
+          "id": "video_2",
+          "description": "Wildfire smoke/landscape, 10-15s",
+          "for_post": "cp_v2 — Arnie: Wildfire season prep",
+          "source": "https://www.pexels.com/video/wildfire-on-the-mountain-7543653/",
+          "fallback": "https://www.pexels.com/video/wildfire-in-a-forest-7448357/",
+          "mux_playback_id": "PASTE_HERE"
+        },
+        {
+          "id": "video_3",
+          "description": "Community volunteers / food bank, 15s",
+          "for_post": "cp_v3 — Surveen: Behind the scenes at distribution",
+          "source": "https://www.pexels.com/video/volunteers-sorting-donated-food-6646362/",
+          "fallback": "https://www.pexels.com/video/people-doing-volunteer-work-6646369/",
+          "mux_playback_id": "PASTE_HERE"
+        },
+        {
+          "id": "video_4",
+          "description": "Firefighters in action, 20s",
+          "for_post": "cp_v4 — Tim: Every second counts",
+          "source": "https://www.pexels.com/video/firemen-fighting-fire-6193113/",
+          "fallback": "https://www.pexels.com/video/a-firefighter-in-a-burning-forest-7578542/",
+          "mux_playback_id": "PASTE_HERE"
+        },
+        {
+          "id": "video_5",
+          "description": "School / children / education, 10s",
+          "for_post": "cp_v5 — Prashanthi: School supply unboxing",
+          "source": "https://www.pexels.com/video/children-sitting-in-the-classroom-8363028/",
+          "fallback": "https://www.pexels.com/video/a-boy-using-colored-pencils-to-draw-8535229/",
+          "mux_playback_id": "PASTE_HERE"
+        }
+      ]
+    },
+
+    "step_2_images": {
+      "_how": "For GFM CDN images: use URLs directly (they are public CDN links, stable). For Pexels images: the seed script should download these to /public/seed/images/ OR hotlink the Pexels CDN URLs directly. Pexels CDN URLs are stable and free to use.",
+      "gfm_cdn_images": {
+        "watchduty_banner": "https://d25oniaj7o2jcw.cloudfront.net/watch_duty_feb182026.png",
+        "watchduty_logo": "https://pics.paypal.com/00/p/MzM1NGQwOWMtNDAwZi00ZjRlLTkxYjgtNzUwZDkwNzQ1Njhl/image_12.PNG",
+        "wildfire_alerts_hero": "https://assets.classy.org/10701950/6ebb40da-05cc-11f1-b48a-0ef061206cc9.jpg",
+        "support_watchduty_hero": "https://d2g8igdw686xgo.cloudfront.net/99824543_1770591389692477_r.png",
+        "seconds_matter_hero": "https://d2g8igdw686xgo.cloudfront.net/99824853_1770924725914740_r.png",
+        "safer_air_hero": "https://d2g8igdw686xgo.cloudfront.net/99973437_1771023556268376_r.png",
+        "command_post_photo": "https://gofundme.com/assets/posts/images/67e553fd-6cdf-45cd-80ab-e8eeafe4aa6e/67e553fd-6cdf-45cd-80ab-e8eeafe4aa6e.jpg"
+      },
+      "pexels_images": {
+        "bama_banner": "https://images.pexels.com/photos/6646917/pexels-photo-6646917.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "grocery_fund_hero": "https://images.pexels.com/photos/6994992/pexels-photo-6994992.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "rent_relief_hero": "https://images.pexels.com/photos/7641842/pexels-photo-7641842.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "school_supplies_hero": "https://images.pexels.com/photos/5905700/pexels-photo-5905700.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "grocery_delivery_post": "https://images.pexels.com/photos/6994875/pexels-photo-6994875.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "minutes_before_post": "https://images.pexels.com/photos/3552472/pexels-photo-3552472.jpeg?auto=compress&cs=tinysrgb&w=800"
+      },
+      "avatars": {
+        "_note": "Use https://i.pravatar.cc/{size}?u={email} for realistic placeholder avatars. Each user gets a deterministic avatar from their ID.",
+        "pattern": "https://i.pravatar.cc/128?u={user_id}@gfm-demo.com"
+      }
+    }
+  },
+
+  "users": [
+    {
+      "id": "u_janahan",
+      "username": "janahan",
+      "display_name": "Janahan Vivekanandan",
+      "avatar_url": "https://i.pravatar.cc/128?u=janahan@gfm-demo.com",
+      "cover_image_url": null,
+      "location": "Los Altos, CA",
+      "bio": "Passionate about community safety and wildfire preparedness. Believer in tech-forward solutions that save lives.",
+      "mock_balance_cents": 50000
+    },
+    {
+      "id": "u_timc",
+      "username": "timc",
+      "display_name": "Tim Cadogan",
+      "avatar_url": "https://i.pravatar.cc/128?u=timc@gfm-demo.com",
+      "cover_image_url": null,
+      "location": "San Diego, CA",
+      "bio": "Community leader dedicated to supporting nonprofits making real impact. Focused on wildfire safety and disaster preparedness.",
+      "mock_balance_cents": 100000
+    },
+    {
+      "id": "u_arnie",
+      "username": "arniekatz",
+      "display_name": "Arnie Katz",
+      "avatar_url": "https://i.pravatar.cc/128?u=arnie@gfm-demo.com",
+      "cover_image_url": null,
+      "location": "San Francisco, CA",
+      "bio": "Bay Area wildfire survivor. Every second counts when it comes to evacuation alerts. Supporting Watch Duty's mission.",
+      "mock_balance_cents": 75000
+    },
+    {
+      "id": "u_surveen",
+      "username": "surveen",
+      "display_name": "Surveen Singh",
+      "avatar_url": "https://i.pravatar.cc/128?u=surveen@gfm-demo.com",
+      "cover_image_url": null,
+      "location": "Oakland, CA",
+      "bio": "Educator and community organizer. Researching how technology can protect our most vulnerable communities from natural disasters.",
+      "mock_balance_cents": 30000
+    },
+    {
+      "id": "u_albert",
+      "username": "albertyam",
+      "display_name": "Albert Yam",
+      "avatar_url": "https://i.pravatar.cc/128?u=albert@gfm-demo.com",
+      "cover_image_url": null,
+      "location": "San Jose, CA",
+      "bio": "Software engineer by day, community advocate always. If you live in the Bay Area, WatchDuty has a direct impact on your quality of life.",
+      "mock_balance_cents": 45000
+    },
+    {
+      "id": "u_kelly",
+      "username": "kellyjackson",
+      "display_name": "Kelly Jackson",
+      "avatar_url": "https://i.pravatar.cc/128?u=kelly@gfm-demo.com",
+      "cover_image_url": null,
+      "location": "Santa Rosa, CA",
+      "bio": "Sonoma County resident. Lost our home in the 2017 Tubbs Fire. Now dedicated to ensuring real-time alerts reach everyone.",
+      "mock_balance_cents": 25000
+    },
+    {
+      "id": "u_michal",
+      "username": "michalruss",
+      "display_name": "Michal Russ",
+      "avatar_url": "https://i.pravatar.cc/128?u=michal@gfm-demo.com",
+      "cover_image_url": null,
+      "location": "Los Angeles, CA",
+      "bio": "LA-based documentary filmmaker. Telling stories that matter. Currently focused on wildfire resilience in California communities.",
+      "mock_balance_cents": 35000
+    },
+    {
+      "id": "u_prashanthi",
+      "username": "prashanthi",
+      "display_name": "Prashanthi Ravanavarapu",
+      "avatar_url": "https://i.pravatar.cc/128?u=prashanthi@gfm-demo.com",
+      "cover_image_url": null,
+      "location": "Fremont, CA",
+      "bio": "Public health researcher focused on the intersection of climate change and community health. Advocate for accessible emergency alert systems.",
+      "mock_balance_cents": 40000
+    }
+  ],
+
+  "communities": [
+    {
+      "id": "c_watchduty",
+      "slug": "watch-duty",
+      "name": "Watch Duty",
+      "description": "Stay Informed. Stay Safe. Stay Ready. — Thank you for supporting Watch Duty — a nonprofit service dedicated to keeping communities informed about wildfires and wildfire-related risks across the country. Powered by a network of trained volunteers and first responders, Watch Duty delivers real-time alerts, verified fire information, and critical situational awareness when it matters most. Your engagement helps strengthen public safety, expand our coverage, and improve the tools that keep families and neighborhoods prepared and protected. Together, we're building a more informed, resilient community — because when we watch together, we're safer together.",
+      "banner_image_url": "https://d25oniaj7o2jcw.cloudfront.net/watch_duty_feb182026.png",
+      "logo_url": "https://pics.paypal.com/00/p/MzM1NGQwOWMtNDAwZi00ZjRlLTkxYjgtNzUwZDkwNzQ1Njhl/image_12.PNG",
+      "follower_count": 63,
+      "total_raised_cents": 3910000,
+      "total_donations": 494,
+      "fundraiser_count": 5
+    },
+    {
+      "id": "c_bayarea_mutual_aid",
+      "slug": "bay-area-mutual-aid",
+      "name": "Bay Area Mutual Aid",
+      "description": "Neighbors helping neighbors across the San Francisco Bay Area. We connect people who need help with people who can give it — whether that's groceries, rent assistance, medical bills, or just someone to talk to. Our network of volunteers and organizers works every day to ensure no one in our community faces hardship alone. Join us in building a stronger, more connected Bay Area.",
+      "banner_image_url": "https://images.pexels.com/photos/6646917/pexels-photo-6646917.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "logo_url": "https://i.pravatar.cc/128?u=bama-community@gfm-demo.com",
+      "follower_count": 142,
+      "total_raised_cents": 8750000,
+      "total_donations": 1203,
+      "fundraiser_count": 3
+    }
+  ],
+
+  "fundraisers": [
+    {
+      "id": "f_realtime_alerts",
+      "slug": "realtime-alerts-for-wildfire-safety",
+      "organizer_id": "u_janahan",
+      "community_id": "c_watchduty",
+      "title": "Real-Time Alerts for Wildfire Safety",
+      "description": "As climate-related disasters worsen, it's crucial that we act swiftly. I believe in the mission of Watch Duty. Watch Duty is taking a tech-forward approach to provide real-time information to those on the front lines of wildfire response. Every second counts when a wildfire threatens our communities.\n\nThis campaign aims to help Watch Duty deliver fast, real-time wildfire alerts. Your contributions will support 24/7 incident monitoring, ensuring that firefighters and first responders get clearer updates as conditions evolve. Together, we can expand our coverage to more at-risk areas and keep these vital alerts free and accessible to those who need them most.\n\nBy joining forces, we can help people act sooner and stay safer during these rapidly changing emergencies. Thank you for considering supporting this important cause. Your generosity makes a real difference.",
+      "hero_image_url": "https://assets.classy.org/10701950/6ebb40da-05cc-11f1-b48a-0ef061206cc9.jpg",
+      "goal_cents": 300000,
+      "raised_cents": 210200,
+      "donation_count": 21,
+      "category": "Community",
+      "tax_deductible": true,
+      "status": "active",
+      "created_at": "2026-02-14T10:00:00Z"
+    },
+    {
+      "id": "f_support_watchduty",
+      "slug": "support-watchduty-to-improve-wildfire-safety",
+      "organizer_id": "u_timc",
+      "community_id": "c_watchduty",
+      "title": "Support WatchDuty to Improve Wildfire Safety",
+      "description": "I am fundraising for Watch Duty because they are an outstanding nonprofit organization that is making communities across America safer from wildfires. Altadena wildfire survivors rely on WatchDuty for real-time alerts, maps, and monitoring.\n\nWatch Duty is powered by real people — active and retired firefighters, dispatchers, and first responders who diligently monitor radio scanners and collaborate around the clock to bring you up-to-the-minute life saving information.\n\nYour donation will help Watch Duty expand their monitoring coverage, improve their alert systems, and keep their service free for everyone who needs it.",
+      "hero_image_url": "https://d2g8igdw686xgo.cloudfront.net/99824543_1770591389692477_r.png",
+      "goal_cents": 1800000,
+      "raised_cents": 1634400,
+      "donation_count": 64,
+      "category": "Community",
+      "tax_deductible": true,
+      "status": "active",
+      "created_at": "2026-02-10T09:00:00Z"
+    },
+    {
+      "id": "f_seconds_matter",
+      "slug": "seconds-matter-with-watch-duty",
+      "organizer_id": "u_arnie",
+      "community_id": "c_watchduty",
+      "title": "Seconds Matter with Watch Duty",
+      "description": "I'm Arnie Katz, and after experiencing the Bay Area wildfires, I understand how crucial every minute can be. People have lost their lives because they evacuated too late or took the wrong route. That's why I support Watch Duty, a nonprofit dedicated to providing real-time wildfire alerts that empower communities to act fast and stay safe.\n\nThe funds we raise will go directly to monitoring more at-risk regions, improving app reliability and alert delivery speed, and training volunteer first-responder reporters.",
+      "hero_image_url": "https://d2g8igdw686xgo.cloudfront.net/99824853_1770924725914740_r.png",
+      "goal_cents": 550000,
+      "raised_cents": 489200,
+      "donation_count": 52,
+      "category": "Community",
+      "tax_deductible": true,
+      "status": "active",
+      "created_at": "2026-02-12T08:30:00Z"
+    },
+    {
+      "id": "f_wildfire_air",
+      "slug": "responding-to-wildfires-safer-air",
+      "organizer_id": "u_albert",
+      "community_id": "c_watchduty",
+      "title": "Responding to Wildfires: Safer Air for the Next Generation",
+      "description": "Hi everyone — I'm Albert, and I've seen firsthand how wildfires don't just destroy property. The smoke and air quality impact lasts for weeks, affecting our children, elderly, and anyone with respiratory conditions.\n\nThis fundraiser supports Watch Duty's expansion into air quality monitoring alongside their wildfire alerts. Every dollar helps Watch Duty build out this critical capability.",
+      "hero_image_url": "https://d2g8igdw686xgo.cloudfront.net/99973437_1771023556268376_r.png",
+      "goal_cents": 220000,
+      "raised_cents": 170000,
+      "donation_count": 38,
+      "category": "Community",
+      "tax_deductible": true,
+      "status": "active",
+      "created_at": "2026-02-18T11:00:00Z"
+    },
+    {
+      "id": "f_when_seconds_matter",
+      "slug": "when-seconds-matter-fund-real-time-fire-alerts",
+      "organizer_id": "u_michal",
+      "community_id": "c_watchduty",
+      "title": "When Seconds Matter: Fund Real-Time Fire Alerts",
+      "description": "As a filmmaker in LA, I've documented the aftermath of wildfires too many times. The stories I hear most often aren't about the fires themselves — they're about the minutes before. The minutes where people didn't know what was happening. Watch Duty fills that gap.",
+      "hero_image_url": "https://assets.classy.org/10701950/6ebb40da-05cc-11f1-b48a-0ef061206cc9.jpg",
+      "goal_cents": 200000,
+      "raised_cents": 150000,
+      "donation_count": 31,
+      "category": "Community",
+      "tax_deductible": true,
+      "status": "active",
+      "created_at": "2026-02-20T14:00:00Z"
+    },
+    {
+      "id": "f_grocery_fund",
+      "slug": "east-bay-grocery-assistance-fund",
+      "organizer_id": "u_surveen",
+      "community_id": "c_bayarea_mutual_aid",
+      "title": "East Bay Grocery Assistance Fund",
+      "description": "Food prices have hit families in East Oakland and Richmond especially hard this year. Through our mutual aid network, we've identified over 50 families who are struggling to put groceries on the table each week.\n\nThis fund provides $100 grocery gift cards directly to families in need — no applications, no bureaucracy, just neighbors helping neighbors.",
+      "hero_image_url": "https://images.pexels.com/photos/6994992/pexels-photo-6994992.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "goal_cents": 500000,
+      "raised_cents": 347500,
+      "donation_count": 89,
+      "category": "Community",
+      "tax_deductible": false,
+      "status": "active",
+      "created_at": "2026-01-15T09:00:00Z"
+    },
+    {
+      "id": "f_rent_relief",
+      "slug": "sf-rent-relief-emergency-fund",
+      "organizer_id": "u_kelly",
+      "community_id": "c_bayarea_mutual_aid",
+      "title": "SF Rent Relief Emergency Fund",
+      "description": "San Francisco's housing crisis isn't just about affordability — it's about people one paycheck away from losing their homes. This emergency fund provides one-time rent assistance of up to $1,500 to Bay Area residents facing eviction.\n\nSince starting this fund, we've helped 23 families stay housed.",
+      "hero_image_url": "https://images.pexels.com/photos/7641842/pexels-photo-7641842.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "goal_cents": 750000,
+      "raised_cents": 582000,
+      "donation_count": 156,
+      "category": "Community",
+      "tax_deductible": false,
+      "status": "active",
+      "created_at": "2026-01-08T10:30:00Z"
+    },
+    {
+      "id": "f_school_supplies",
+      "slug": "oakland-school-supplies-drive",
+      "organizer_id": "u_prashanthi",
+      "community_id": "c_bayarea_mutual_aid",
+      "title": "Oakland School Supplies for Every Student",
+      "description": "Every child deserves to start the school year with the supplies they need. This fundraiser partners with 12 Oakland public schools to identify students who need support. A $25 donation provides a complete supply kit for one student.",
+      "hero_image_url": "https://images.pexels.com/photos/5905700/pexels-photo-5905700.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      "goal_cents": 250000,
+      "raised_cents": 187500,
+      "donation_count": 112,
+      "category": "Education",
+      "tax_deductible": false,
+      "status": "active",
+      "created_at": "2026-02-01T08:00:00Z"
+    }
+  ],
+
+  "donations": {
+    "_instructions": "Generate these programmatically in the seed script. Distribute across all fundraisers. Use the sample_messages for variety. Timestamps should span Feb 2026.",
+    "_reconciliation": "IMPORTANT: After generating all donations for a fundraiser, UPDATE that fundraiser's raised_cents to equal the exact SUM of its donation amounts. Also update donation_count to match the actual count. Do NOT rely on the pre-set raised_cents values in the fundraisers array — those are approximate targets. The script should recalculate from actual generated data to ensure consistency.",
+    "sample_donations": [
+      { "donor_id": "u_janahan", "fundraiser_id": "f_realtime_alerts", "amount_cents": 20000, "message": "Every second counts when a wildfire threatens our communities.", "is_anonymous": false },
+      { "donor_id": "u_timc", "fundraiser_id": "f_realtime_alerts", "amount_cents": 50000, "message": "Proud to support this cause. Watch Duty saves lives.", "is_anonymous": false },
+      { "donor_id": "u_arnie", "fundraiser_id": "f_support_watchduty", "amount_cents": 10000, "message": "After experiencing the Bay Area wildfires, I know how crucial every minute can be.", "is_anonymous": false },
+      { "donor_id": "u_surveen", "fundraiser_id": "f_seconds_matter", "amount_cents": 5000, "message": "Their reporters undergo extensive training. SO. COOL!!!!!!", "is_anonymous": false },
+      { "donor_id": "u_albert", "fundraiser_id": "f_realtime_alerts", "amount_cents": 7500, "message": "If you live in the Bay Area, WatchDuty's work has a direct impact on your quality of life.", "is_anonymous": false },
+      { "donor_id": "u_kelly", "fundraiser_id": "f_grocery_fund", "amount_cents": 2500, "message": "Groceries shouldn't be a luxury. Happy to help our East Bay neighbors.", "is_anonymous": false },
+      { "donor_id": "u_janahan", "fundraiser_id": "f_grocery_fund", "amount_cents": 10000, "message": "Neighbors helping neighbors. This is what community means.", "is_anonymous": false },
+      { "donor_id": "u_prashanthi", "fundraiser_id": "f_rent_relief", "amount_cents": 5000, "message": "No one should lose their home because of one missed paycheck.", "is_anonymous": false },
+      { "donor_id": "u_michal", "fundraiser_id": "f_support_watchduty", "amount_cents": 15000, "message": "I've filmed the aftermath too many times. Let's fund the prevention.", "is_anonymous": false },
+      { "donor_id": "u_janahan", "fundraiser_id": "f_rent_relief", "amount_cents": 5000, "message": "Paying it forward. This fund matters.", "is_anonymous": false }
+    ],
+    "additional_generation_rules": {
+      "total_target": "40-60 donations total across all fundraisers",
+      "anonymous_ratio": "20% of donations should be anonymous",
+      "amount_distribution": { "1000_to_2500": "30%", "2500_to_5000": "25%", "5000_to_10000": "20%", "10000_to_25000": "15%", "25000_to_50000": "10%" },
+      "generic_messages": [
+        "Thank you for doing this important work!",
+        "Small amount but wanted to contribute. Every bit helps!",
+        "Matching my daughter's donation.",
+        "Happy to support this cause.",
+        "In memory of those we lost. Never again.",
+        "Donating my birthday money this year. This matters more.",
+        "Fellow firefighter here. Supporting from Station 42.",
+        "Just moved to California. This seems essential.",
+        "Sending love from Oregon. This kind of tech should be everywhere.",
+        "Every kid deserves a fresh notebook on the first day.",
+        "Was in this situation two years ago. Paying it forward.",
+        "$50 isn't much but I hope it helps someone.",
+        "Keep up the amazing work!",
+        "Heard about this from a friend. Count me in.",
+        "This is what community looks like."
+      ]
+    }
+  },
+
+  "content_posts": {
+    "_instructions": "Create all these content_posts rows. Video posts reference Mux playback IDs from media_setup. Image posts reference URLs from media_setup. Auto-generated posts have null author_id and use auto_gen_data JSON.",
+
+    "creator_posts": [
+      {
+        "id": "cp_v1",
+        "author_id": "u_janahan",
+        "fundraiser_id": "f_realtime_alerts",
+        "community_id": "c_watchduty",
+        "content_type": "video",
+        "title": "Why I support Watch Duty",
+        "body": "Every second counts when a wildfire threatens our communities. Watch Duty's tech-forward approach provides real-time information to those on the front lines. Here's why I started this fundraiser.",
+        "mux_playback_id": "USE_video_1_PLAYBACK_ID",
+        "thumbnail_url": null,
+        "view_count": 234,
+        "reaction_count": 18,
+        "comment_count": 5,
+        "comments_enabled": true,
+        "status": "published",
+        "created_at": "2026-02-15T14:00:00Z"
+      },
+      {
+        "id": "cp_v2",
+        "author_id": "u_arnie",
+        "fundraiser_id": "f_seconds_matter",
+        "community_id": "c_watchduty",
+        "content_type": "video",
+        "title": "Wildfire season prep — what you need to know",
+        "body": "After experiencing the Bay Area wildfires, I understand how crucial every minute can be. People have lost their lives because they evacuated too late. Watch Duty changes that equation.",
+        "mux_playback_id": "USE_video_2_PLAYBACK_ID",
+        "thumbnail_url": null,
+        "view_count": 189,
+        "reaction_count": 12,
+        "comment_count": 3,
+        "comments_enabled": true,
+        "status": "published",
+        "created_at": "2026-02-16T10:00:00Z"
+      },
+      {
+        "id": "cp_v3",
+        "author_id": "u_surveen",
+        "fundraiser_id": "f_grocery_fund",
+        "community_id": "c_bayarea_mutual_aid",
+        "content_type": "video",
+        "title": "Behind the scenes at distribution day",
+        "body": "Just finished our biggest distribution day yet. 45 grocery cards delivered across East Oakland and Richmond in a single afternoon. The look on people's faces when they realize someone cares — that's why we do this.",
+        "mux_playback_id": "USE_video_3_PLAYBACK_ID",
+        "thumbnail_url": null,
+        "view_count": 278,
+        "reaction_count": 22,
+        "comment_count": 6,
+        "comments_enabled": true,
+        "status": "published",
+        "created_at": "2026-02-20T16:00:00Z"
+      },
+      {
+        "id": "cp_v4",
+        "author_id": "u_timc",
+        "fundraiser_id": "f_support_watchduty",
+        "community_id": "c_watchduty",
+        "content_type": "video",
+        "title": "Every second counts",
+        "body": "Over 3000 firefighters were deployed during the recent fires. Many of them use Watch Duty to help them in their work. Your donations make this possible.",
+        "mux_playback_id": "USE_video_4_PLAYBACK_ID",
+        "thumbnail_url": null,
+        "view_count": 342,
+        "reaction_count": 27,
+        "comment_count": 8,
+        "comments_enabled": true,
+        "status": "published",
+        "created_at": "2026-02-22T09:00:00Z"
+      },
+      {
+        "id": "cp_v5",
+        "author_id": "u_prashanthi",
+        "fundraiser_id": "f_school_supplies",
+        "community_id": "c_bayarea_mutual_aid",
+        "content_type": "video",
+        "title": "What $25 buys — a full supply kit",
+        "body": "A $25 donation provides a complete supply kit for one student. That's a backpack, notebooks, pencils, pens, folders, a calculator, and art supplies. Everything a kid needs to walk in on day one feeling ready.",
+        "mux_playback_id": "USE_video_5_PLAYBACK_ID",
+        "thumbnail_url": null,
+        "view_count": 198,
+        "reaction_count": 14,
+        "comment_count": 4,
+        "comments_enabled": true,
+        "status": "published",
+        "created_at": "2026-02-25T11:00:00Z"
+      },
+      {
+        "id": "cp_img1",
+        "author_id": "u_timc",
+        "fundraiser_id": "f_support_watchduty",
+        "community_id": "c_watchduty",
+        "content_type": "image_story",
+        "title": "From the Command Post",
+        "body": "This photo is from the Command Post at the Rose Bowl on Day 4 of the fire. Over 3000 firefighters were deployed and worked very hard to contain the fire. Many of them use Watch Duty to help them in their work.",
+        "media_url": "https://gofundme.com/assets/posts/images/67e553fd-6cdf-45cd-80ab-e8eeafe4aa6e/67e553fd-6cdf-45cd-80ab-e8eeafe4aa6e.jpg",
+        "thumbnail_url": "https://gofundme.com/assets/posts/images/67e553fd-6cdf-45cd-80ab-e8eeafe4aa6e/67e553fd-6cdf-45cd-80ab-e8eeafe4aa6e.jpg",
+        "view_count": 342,
+        "reaction_count": 9,
+        "comment_count": 4,
+        "comments_enabled": true,
+        "status": "published",
+        "created_at": "2026-02-17T08:00:00Z"
+      },
+      {
+        "id": "cp_img2",
+        "author_id": "u_michal",
+        "fundraiser_id": "f_when_seconds_matter",
+        "community_id": "c_watchduty",
+        "content_type": "image_story",
+        "title": "The minutes before",
+        "body": "I've filmed wildfire aftermaths across California. But the story that matters most isn't the destruction — it's the minutes before. The minutes where a real-time alert could have changed everything. 2 more days to fundraise!!!",
+        "media_url": "https://images.pexels.com/photos/3552472/pexels-photo-3552472.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "thumbnail_url": "https://images.pexels.com/photos/3552472/pexels-photo-3552472.jpeg?auto=compress&cs=tinysrgb&w=400",
+        "view_count": 145,
+        "reaction_count": 3,
+        "comment_count": 1,
+        "comments_enabled": true,
+        "status": "published",
+        "created_at": "2026-02-21T14:00:00Z"
+      },
+      {
+        "id": "cp_img3",
+        "author_id": "u_surveen",
+        "fundraiser_id": "f_grocery_fund",
+        "community_id": "c_bayarea_mutual_aid",
+        "content_type": "image_story",
+        "title": "120 families fed this quarter",
+        "body": "Just finished our biggest distribution day yet. 45 grocery cards delivered across East Oakland and Richmond in a single afternoon. Thank you to every single donor. You're making this possible.",
+        "media_url": "https://images.pexels.com/photos/6994875/pexels-photo-6994875.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "thumbnail_url": "https://images.pexels.com/photos/6994875/pexels-photo-6994875.jpeg?auto=compress&cs=tinysrgb&w=400",
+        "view_count": 278,
+        "reaction_count": 15,
+        "comment_count": 6,
+        "comments_enabled": true,
+        "status": "published",
+        "created_at": "2026-02-19T16:00:00Z"
+      },
+      {
+        "id": "cp_txt1",
+        "author_id": "u_surveen",
+        "fundraiser_id": null,
+        "community_id": "c_watchduty",
+        "content_type": "text_update",
+        "title": "How Watch Duty Actually Works",
+        "body": "I wanted to better understand how exactly Watch Duty operates and why our donations are so important. Their service is powered by real people — active and retired firefighters, dispatchers, and first responders who diligently monitor radio scanners and collaborate around the clock. Their reporters undergo extensive training as well as background checks before joining the team. SO. COOL!!!!!!",
+        "media_url": null,
+        "view_count": 187,
+        "reaction_count": 5,
+        "comment_count": 1,
+        "comments_enabled": true,
+        "status": "published",
+        "created_at": "2026-02-18T12:00:00Z"
+      },
+      {
+        "id": "cp_txt2",
+        "author_id": "u_albert",
+        "fundraiser_id": "f_wildfire_air",
+        "community_id": "c_watchduty",
+        "content_type": "text_update",
+        "title": "Closing out this fundraiser",
+        "body": "Hi everyone; thanks for the donations! We're closing out this fundraiser at the end of the day tomorrow. Any additional donations are appreciated; also, if you're comfortable sharing this fundraiser with your own network, it would mean a lot!",
+        "media_url": null,
+        "view_count": 203,
+        "reaction_count": 7,
+        "comment_count": 3,
+        "comments_enabled": true,
+        "status": "published",
+        "created_at": "2026-02-23T10:00:00Z"
+      },
+      {
+        "id": "cp_txt3",
+        "author_id": "u_kelly",
+        "fundraiser_id": "f_rent_relief",
+        "community_id": "c_bayarea_mutual_aid",
+        "content_type": "text_update",
+        "title": "Family #24 stays housed",
+        "body": "Update: we just helped our 24th family avoid eviction this year. Single mom, two kids, missed one paycheck due to a medical emergency. The landlord was already filing paperwork. We got the funds to them in 3 days.\n\nThis is what mutual aid looks like. This is what YOUR donations make possible.",
+        "media_url": null,
+        "view_count": 312,
+        "reaction_count": 22,
+        "comment_count": 8,
+        "comments_enabled": true,
+        "status": "published",
+        "created_at": "2026-02-24T09:00:00Z"
+      },
+      {
+        "id": "cp_txt4",
+        "author_id": "u_prashanthi",
+        "fundraiser_id": "f_school_supplies",
+        "community_id": "c_bayarea_mutual_aid",
+        "content_type": "text_update",
+        "title": "340 students equipped — let's hit 500",
+        "body": "Last year we equipped 340 students with everything they needed for the school year. This year we're aiming for 500. We've already confirmed partnerships with 12 Oakland public schools and the early response from families has been incredible.",
+        "media_url": null,
+        "view_count": 198,
+        "reaction_count": 14,
+        "comment_count": 5,
+        "comments_enabled": true,
+        "status": "published",
+        "created_at": "2026-02-26T08:00:00Z"
+      }
+    ],
+
+    "auto_generated_posts": [
+      {
+        "id": "cp_auto1",
+        "author_id": null,
+        "fundraiser_id": "f_support_watchduty",
+        "community_id": "c_watchduty",
+        "content_type": "milestone",
+        "title": "90% funded!",
+        "body": null,
+        "auto_gen_data": { "fundraiser_id": "f_support_watchduty", "milestone_pct": 90, "raised_cents": 1634400, "goal_cents": 1800000, "fundraiser_title": "Support WatchDuty to Improve Wildfire Safety", "organizer_name": "Tim Cadogan" },
+        "view_count": 89,
+        "reaction_count": 12,
+        "comment_count": 2,
+        "status": "published",
+        "created_at": "2026-02-22T12:00:00Z"
+      },
+      {
+        "id": "cp_auto2",
+        "author_id": null,
+        "fundraiser_id": "f_grocery_fund",
+        "community_id": "c_bayarea_mutual_aid",
+        "content_type": "milestone",
+        "title": "70% funded!",
+        "body": null,
+        "auto_gen_data": { "fundraiser_id": "f_grocery_fund", "milestone_pct": 70, "raised_cents": 347500, "goal_cents": 500000, "fundraiser_title": "East Bay Grocery Assistance Fund", "organizer_name": "Surveen Singh" },
+        "view_count": 94,
+        "reaction_count": 6,
+        "comment_count": 0,
+        "status": "published",
+        "created_at": "2026-02-20T18:00:00Z"
+      },
+      {
+        "id": "cp_auto3",
+        "author_id": null,
+        "fundraiser_id": null,
+        "community_id": "c_watchduty",
+        "content_type": "community_pulse",
+        "title": "Watch Duty — This Week",
+        "body": null,
+        "auto_gen_data": { "period": "week", "new_fundraisers": 3, "raised_cents": 420000, "new_members": 5, "total_members": 63, "top_fundraiser_title": "Support WatchDuty to Improve Wildfire Safety", "top_fundraiser_raised": 1634400 },
+        "view_count": 156,
+        "reaction_count": 8,
+        "comment_count": 0,
+        "status": "published",
+        "created_at": "2026-02-24T06:00:00Z"
+      },
+      {
+        "id": "cp_auto4",
+        "author_id": null,
+        "fundraiser_id": null,
+        "community_id": "c_bayarea_mutual_aid",
+        "content_type": "community_pulse",
+        "title": "Bay Area Mutual Aid — This Week",
+        "body": null,
+        "auto_gen_data": { "period": "week", "new_fundraisers": 2, "raised_cents": 285000, "new_members": 8, "total_members": 142, "top_fundraiser_title": "SF Rent Relief Emergency Fund", "top_fundraiser_raised": 582000 },
+        "view_count": 189,
+        "reaction_count": 11,
+        "comment_count": 2,
+        "status": "published",
+        "created_at": "2026-02-24T06:00:00Z"
+      },
+      {
+        "id": "cp_auto5",
+        "author_id": null,
+        "fundraiser_id": "f_realtime_alerts",
+        "community_id": "c_watchduty",
+        "content_type": "donor_spotlight",
+        "title": "Janahan donated $200",
+        "body": null,
+        "auto_gen_data": { "donor_id": "u_janahan", "donor_name": "Janahan Vivekanandan", "amount_cents": 20000, "message": "Every second counts when a wildfire threatens our communities.", "fundraiser_title": "Real-Time Alerts for Wildfire Safety" },
+        "view_count": 67,
+        "reaction_count": 4,
+        "comment_count": 1,
+        "status": "published",
+        "created_at": "2026-02-15T15:00:00Z"
+      }
+    ]
+  },
+
+  "community_members": [
+    { "user_id": "u_janahan", "community_id": "c_watchduty", "role": "member" },
+    { "user_id": "u_janahan", "community_id": "c_bayarea_mutual_aid", "role": "member" },
+    { "user_id": "u_timc", "community_id": "c_watchduty", "role": "admin" },
+    { "user_id": "u_arnie", "community_id": "c_watchduty", "role": "member" },
+    { "user_id": "u_surveen", "community_id": "c_watchduty", "role": "member" },
+    { "user_id": "u_surveen", "community_id": "c_bayarea_mutual_aid", "role": "admin" },
+    { "user_id": "u_albert", "community_id": "c_watchduty", "role": "member" },
+    { "user_id": "u_kelly", "community_id": "c_bayarea_mutual_aid", "role": "member" },
+    { "user_id": "u_michal", "community_id": "c_watchduty", "role": "member" },
+    { "user_id": "u_prashanthi", "community_id": "c_bayarea_mutual_aid", "role": "member" }
+  ],
+
+  "follows": [
+    { "follower_id": "u_janahan", "following_id": "u_timc" },
+    { "follower_id": "u_janahan", "following_id": "u_arnie" },
+    { "follower_id": "u_janahan", "following_id": "u_surveen" },
+    { "follower_id": "u_arnie", "following_id": "u_timc" },
+    { "follower_id": "u_arnie", "following_id": "u_janahan" },
+    { "follower_id": "u_surveen", "following_id": "u_janahan" },
+    { "follower_id": "u_surveen", "following_id": "u_kelly" },
+    { "follower_id": "u_albert", "following_id": "u_timc" },
+    { "follower_id": "u_albert", "following_id": "u_janahan" },
+    { "follower_id": "u_kelly", "following_id": "u_surveen" },
+    { "follower_id": "u_kelly", "following_id": "u_prashanthi" },
+    { "follower_id": "u_michal", "following_id": "u_timc" },
+    { "follower_id": "u_michal", "following_id": "u_arnie" },
+    { "follower_id": "u_prashanthi", "following_id": "u_surveen" },
+    { "follower_id": "u_prashanthi", "following_id": "u_kelly" },
+    { "follower_id": "u_timc", "following_id": "u_janahan" },
+    { "follower_id": "u_timc", "following_id": "u_arnie" }
+  ],
+
+  "sample_comments": [
+    { "content_post_id": "cp_v4", "user_id": "u_janahan", "body": "This footage is powerful, Tim. Thank you for leading this campaign.", "donation_id": null },
+    { "content_post_id": "cp_v4", "user_id": "u_arnie", "body": "I was at that fire. Watch Duty alerts reached me before any official channel did.", "donation_id": null },
+    { "content_post_id": "cp_v1", "user_id": "u_timc", "body": "Great video Janahan! This captures the urgency perfectly.", "donation_id": null },
+    { "content_post_id": "cp_v1", "user_id": "u_surveen", "body": "Shared this with my entire network. Everyone in CA needs to see this.", "donation_id": null },
+    { "content_post_id": "cp_txt3", "user_id": "u_prashanthi", "body": "This is incredible work Kelly. Family #24 — imagine if that fund didn't exist.", "donation_id": null },
+    { "content_post_id": "cp_txt3", "user_id": "u_janahan", "body": "Just donated another $50 after reading this. Keep going.", "donation_id": null },
+    { "content_post_id": "cp_v3", "user_id": "u_kelly", "body": "Surveen, you and the team are making such a difference. Oakland is lucky to have you.", "donation_id": null },
+    { "content_post_id": "cp_img1", "user_id": "u_albert", "body": "That's an incredible photo. The scale of the response is just amazing.", "donation_id": null },
+    { "content_post_id": "cp_auto1", "user_id": "u_arnie", "body": "So close! Let's push this over the finish line.", "donation_id": null },
+    { "content_post_id": "cp_auto5", "user_id": "u_timc", "body": "Thank you Janahan. Your generosity inspires the whole community.", "donation_id": null }
+  ],
+
+  "sample_reactions": {
+    "_instructions": "Generate 50-80 reactions distributed across content posts. Use the distribution below.",
+    "distribution": { "heart": "40%", "clap": "20%", "hug": "15%", "inspired": "15%", "pray": "8%", "micro_donate": "2%" },
+    "_note": "micro_donate reactions should have micro_donation_cents values of 100, 200, or 500"
+  }
+}
