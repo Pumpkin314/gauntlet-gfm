@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import { CommunityHeader } from '@/components/community/community-header';
 import { CommunityTabs } from '@/components/community/community-tabs';
 import { ImpactStats } from '@/components/community/impact-stats';
+import { getContentByCommunityId } from '@/lib/queries/content';
 import {
   getAllCommunitySlugs,
   getCommunityBySlug,
@@ -70,12 +71,14 @@ export default async function CommunityPage({
   }
 
   // Fetch all data in parallel
-  const [fundraisers, leaderboard, members, posts] = await Promise.all([
-    getCommunityFundraisers(community.id),
-    getCommunityLeaderboard(community.id),
-    getCommunityMembers(community.id),
-    getCommunityPosts(community.id),
-  ]);
+  const [fundraisers, leaderboard, members, posts, contentItems] =
+    await Promise.all([
+      getCommunityFundraisers(community.id),
+      getCommunityLeaderboard(community.id),
+      getCommunityMembers(community.id),
+      getCommunityPosts(community.id),
+      getContentByCommunityId(community.id),
+    ]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
@@ -100,6 +103,7 @@ export default async function CommunityPage({
             posts={posts}
             members={members}
             communityDescription={community.description}
+            contentItems={contentItems}
           />
         </Suspense>
       </div>

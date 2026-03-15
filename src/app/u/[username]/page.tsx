@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
+import { ContentFeed } from '@/components/content-feed';
 import { ActivityFeed } from '@/components/profile/activity-feed';
 import { FundraiserCard } from '@/components/shared/fundraiser-card';
 import { GivingIdentityCard } from '@/components/profile/giving-identity-card';
 import { ProfileHeader } from '@/components/profile/profile-header';
 import { getCurrentUser } from '@/lib/auth';
+import { getContentByAuthorId } from '@/lib/queries/content';
 import {
   getAllUsernames,
   getUserByUsername,
@@ -70,14 +72,21 @@ export default async function ProfilePage({
 
   // Fetch all data in parallel
   const currentUser = await getCurrentUser();
-  const [fundraiserData, donationData, givingSummary, followCounts, following] =
-    await Promise.all([
-      getUserFundraisers(user.id),
-      getUserDonations(user.id, 10),
-      getUserGivingSummary(user.id, user.createdAt),
-      getUserFollowCounts(user.id),
-      currentUser ? isUserFollowing(currentUser.id, user.id) : false,
-    ]);
+  const [
+    fundraiserData,
+    donationData,
+    givingSummary,
+    followCounts,
+    following,
+    contentItems,
+  ] = await Promise.all([
+    getUserFundraisers(user.id),
+    getUserDonations(user.id, 10),
+    getUserGivingSummary(user.id, user.createdAt),
+    getUserFollowCounts(user.id),
+    currentUser ? isUserFollowing(currentUser.id, user.id) : false,
+    getContentByAuthorId(user.id),
+  ]);
 
   const isOwnProfile = currentUser?.id === user.id;
 
@@ -125,6 +134,14 @@ export default async function ProfilePage({
           fundraisers={fundraiserData}
         />
       </section>
+
+      {/* Content Posts */}
+      {contentItems.length > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-4 text-lg font-bold text-gfm-dark">Posts</h2>
+          <ContentFeed items={contentItems} />
+        </section>
+      )}
     </div>
   );
 }
