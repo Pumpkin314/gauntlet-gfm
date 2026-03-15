@@ -104,6 +104,7 @@ export default async function CommunityPage({
             members={members}
             communityDescription={community.description}
             contentItems={contentItems}
+            communityId={community.id}
           />
         </Suspense>
       </div>

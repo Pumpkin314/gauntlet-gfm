@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { ContentFeed } from '@/components/content-feed';
 import { DonationsList } from '@/components/donations/donations-list';
@@ -143,6 +144,12 @@ export default async function FundraiserPage({
                     Updates &amp; Content
                   </h2>
                   <ContentFeed items={contentItems} />
+                  <Link
+                    href={`/fyp?source=fundraiser&id=${fundraiser.id}`}
+                    className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-gfm-green hover:underline"
+                  >
+                    More like this &rarr;
+                  </Link>
                 </section>
               </>
             )}

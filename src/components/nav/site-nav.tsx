@@ -11,6 +11,7 @@ import { MobileNav } from "./mobile-nav";
 
 const navLinks = [
   { href: "/", label: "Discover" },
+  { href: "/fyp", label: "Fund You" },
   { href: "/start", label: "Start a GoFundMe" },
   { href: "/how-it-works", label: "How It Works" },
 ] as const;

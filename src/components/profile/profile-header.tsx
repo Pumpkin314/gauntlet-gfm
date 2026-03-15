@@ -1,5 +1,6 @@
 import { MapPin } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import {
   Avatar,
@@ -126,7 +127,13 @@ export function ProfileHeader({
             </div>
           </div>
 
-          <div className="shrink-0">
+          <div className="flex shrink-0 items-center gap-2">
+            <Link
+              href={`/fyp?source=profile&id=${user.id}`}
+              className="inline-flex h-9 items-center rounded-full border border-gfm-green px-4 text-sm font-medium text-gfm-green transition-colors hover:bg-gfm-green hover:text-white"
+            >
+              Fund You Page
+            </Link>
             <FollowButton
               targetUserId={user.id}
               isOwnProfile={isOwnProfile}

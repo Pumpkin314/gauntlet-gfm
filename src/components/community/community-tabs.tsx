@@ -87,6 +87,7 @@ interface CommunityTabsProps {
   members: Array<{ member: Member; user: Organizer | null }>;
   communityDescription: string | null;
   contentItems?: ContentItem[];
+  communityId: string;
 }
 
 type TabValue = 'activity' | 'fundraisers' | 'about';
@@ -108,6 +109,7 @@ export function CommunityTabs({
   members,
   communityDescription,
   contentItems,
+  communityId,
 }: CommunityTabsProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -166,6 +168,7 @@ export function CommunityTabs({
             posts={posts}
             leaderboard={leaderboard}
             contentItems={contentItems}
+            communityId={communityId}
           />
         )}
         {currentTab === 'fundraisers' && (
@@ -191,10 +194,12 @@ function ActivityTab({
   posts,
   leaderboard,
   contentItems,
+  communityId,
 }: {
   posts: Array<{ post: Post; author: Organizer | null }>;
   leaderboard: CommunityTabsProps['leaderboard'];
   contentItems?: ContentItem[];
+  communityId: string;
 }) {
   // Use rich ContentCard rendering when contentItems are available;
   // fall back to mapping posts to ContentCard shape otherwise.
@@ -250,6 +255,14 @@ function ActivityTab({
               />
             ))}
           </div>
+          {items.length > 0 && (
+            <Link
+              href={`/fyp?source=community&id=${communityId}`}
+              className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-gfm-green hover:underline"
+            >
+              More like this &rarr;
+            </Link>
+          )}
         )}
       </div>
 
