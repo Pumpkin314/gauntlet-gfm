@@ -244,25 +244,25 @@ function ActivityTab({
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {items.map((item) => (
-              <ContentCard
-                key={item.post.id}
-                post={item.post}
-                author={item.author}
-                fundraiser={item.fundraiser}
-                community={item.community}
-              />
-            ))}
-          </div>
-          {items.length > 0 && (
+          <>
+            <div className="space-y-4">
+              {items.map((item) => (
+                <ContentCard
+                  key={item.post.id}
+                  post={item.post}
+                  author={item.author}
+                  fundraiser={item.fundraiser}
+                  community={item.community}
+                />
+              ))}
+            </div>
             <Link
               href={`/fyp?source=community&id=${communityId}`}
               className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-gfm-green hover:underline"
             >
               More like this &rarr;
             </Link>
-          )}
+          </>
         )}
       </div>
 
