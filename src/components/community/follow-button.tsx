@@ -3,6 +3,7 @@
 import { useState,useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { trackAction } from '@/lib/analytics/actions';
 import { toggleFollowCommunity } from '@/lib/actions/follows';
 
 interface FollowButtonProps {
@@ -26,6 +27,9 @@ export function FollowButton({
 
     startTransition(async () => {
       const result = await toggleFollowCommunity(communityId);
+      if (result.success && nextFollowing) {
+        trackAction('follow', { communityId, type: 'community' });
+      }
       if (!result.success) {
         // Revert on error
         setIsFollowing(!nextFollowing);

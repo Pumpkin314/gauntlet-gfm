@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Heart, MessageCircle, DollarSign, Share2, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
+import { trackAction } from '@/lib/analytics/actions';
 import { FYPQuickDonate } from './fyp-quick-donate';
 
 interface FYPActionButtonsProps {
@@ -75,6 +76,7 @@ export function FYPActionButtons({
   const [localReactionCount, setLocalReactionCount] = useState(reactionCount);
 
   const handleShare = async () => {
+    trackAction('share', { source: 'fyp' });
     try {
       if (navigator.share) {
         await navigator.share({
@@ -93,6 +95,9 @@ export function FYPActionButtons({
     // Simple toggle for FYP — full ReactionButton is too complex for the right-rail
     setLiked((prev) => !prev);
     setLocalReactionCount((prev) => (liked ? prev - 1 : prev + 1));
+    if (!liked) {
+      trackAction('react', { contentPostId: postId, reactionType: 'heart', source: 'fyp' });
+    }
   };
 
   return (

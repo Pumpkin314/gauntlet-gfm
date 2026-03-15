@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { trackAction } from '@/lib/analytics/actions';
 import { formatCents } from '@/lib/format';
 
 const PRESET_AMOUNTS_CENTS = [2500, 5000, 10000, 25000] as const;
@@ -72,6 +73,9 @@ export function DonateForm({
         });
         const data: DonateResult = await res.json();
         setResult(data);
+        if (data.success) {
+          trackAction('donate', { fundraiserId, amountCents, source: 'fundraiser_page' });
+        }
       } catch {
         setResult({ success: false, error: 'Network error. Please try again.' });
       } finally {

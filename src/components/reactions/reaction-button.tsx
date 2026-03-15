@@ -10,6 +10,7 @@ import {
 
 import '@/components/reactions/reaction-animation.css';
 
+import { trackAction } from '@/lib/analytics/actions';
 import { toggleReaction } from '@/lib/actions/reactions';
 
 import {
@@ -102,6 +103,9 @@ export function ReactionButton({
         if (result.success) {
           setCurrentReaction(result.reactionType);
           setReactionCount(result.reactionCount);
+          if (result.reactionType) {
+            trackAction('react', { contentPostId, reactionType: result.reactionType });
+          }
         } else {
           // Revert optimistic update on failure
           setCurrentReaction(initialReaction);

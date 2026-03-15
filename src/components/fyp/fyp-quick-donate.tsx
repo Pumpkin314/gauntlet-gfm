@@ -11,6 +11,7 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { trackAction } from '@/lib/analytics/actions';
 // Uses /api/donate route instead of server action to avoid RSC re-render crashes
 
 const PRESETS = [500, 1000, 2500, 5000] as const;
@@ -68,6 +69,7 @@ export function FYPQuickDonate({
       const res = await response.json();
 
       if (res.success) {
+        trackAction('donate', { fundraiserId, amountCents, source: 'fyp_quick_donate' });
         setResult('success');
         setTimeout(() => {
           setResult('idle');

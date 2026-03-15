@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRef, useState, useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { trackAction } from '@/lib/analytics/actions';
 import { createComment } from '@/lib/actions/comments';
 
 interface CommentInputProps {
@@ -49,6 +50,7 @@ export function CommentInput({
     startTransition(async () => {
       const result = await createComment(contentPostId, body.trim());
       if (result.success) {
+        trackAction('comment', { contentPostId });
         setBody('');
         textareaRef.current?.focus();
         onCommentAdded?.();

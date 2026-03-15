@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 
+import { AnalyticsProvider } from "@/components/analytics/analytics-provider";
 import { SiteFooter } from "@/components/nav/site-footer";
 import { SiteNav } from "@/components/nav/site-nav";
 
@@ -26,9 +27,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${dmSans.variable} antialiased`}>
-        <SiteNav />
-        <main className="min-h-[calc(100vh-64px)]">{children}</main>
-        <SiteFooter />
+        <AnalyticsProvider>
+          <SiteNav />
+          <main className="min-h-[calc(100vh-64px)]">{children}</main>
+          <SiteFooter />
+        </AnalyticsProvider>
       </body>
     </html>
   );

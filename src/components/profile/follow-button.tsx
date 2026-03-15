@@ -4,6 +4,7 @@ import { useTransition, useState } from 'react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
+import { trackAction } from '@/lib/analytics/actions';
 import { toggleFollowUser } from '@/lib/actions/follows';
 
 interface FollowButtonProps {
@@ -39,6 +40,9 @@ export function FollowButton({
       try {
         const result = await toggleFollowUser(targetUserId);
         setIsFollowing(result.followed);
+        if (result.followed) {
+          trackAction('follow', { targetUserId, type: 'user' });
+        }
       } catch {
         // Revert on error
         setIsFollowing(previous);

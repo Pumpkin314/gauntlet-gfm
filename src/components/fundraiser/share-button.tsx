@@ -4,6 +4,7 @@ import { Check, Link as LinkIcon, Share2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { trackAction } from '@/lib/analytics/actions';
 
 interface ShareButtonProps {
   title?: string;
@@ -21,6 +22,8 @@ export function ShareButton({
 
   const handleShare = useCallback(async () => {
     const url = window.location.href;
+
+    trackAction('share', { url });
 
     // Try Web Share API on mobile
     if (typeof navigator.share === 'function') {
