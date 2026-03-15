@@ -2,7 +2,7 @@
 
 A reimagined crowdfunding platform built with Next.js 16, React Server Components, and modern web technologies. Discover fundraisers, donate, and make a difference through a TikTok-style discovery feed.
 
-**Live:** Deployed on AWS via SST/OpenNext (CloudFront + Lambda)
+**Live:** https://gauntlet-gfm.vercel.app (Vercel) — AWS via SST/OpenNext configured, pending first deploy
 
 ## Features
 
@@ -114,7 +114,4 @@ MUX_TOKEN_SECRET          # Mux video (optional)
 - `1e1f8ef` — PR 7.6: Loading/latency visibility — timedQuery, Server-Timing headers, slow query tracking, nav timing
 
 ### TB8: AWS Infrastructure Migration
-- PR 8.1: Swap ioredis → @upstash/redis (HTTP-based, serverless-native)
-- PR 8.2: SST v3 config for AWS deployment (CloudFront + Lambda + S3)
-- PR 8.3: GitHub Actions CI/CD pipeline (lint + deploy)
-- PR 8.4: Playwright remote testing support, docs update
+- `d84b366` — PR 8.1–8.4: Swap ioredis → @upstash/redis, SST v3 config, GitHub Actions CI/CD, Playwright remote testing, docs update

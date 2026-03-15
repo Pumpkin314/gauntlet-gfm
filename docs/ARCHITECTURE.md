@@ -10,7 +10,7 @@ GoFundMe Reimagined is a full-stack crowdfunding platform built with Next.js 16,
 |-------|-----------|-----|
 | Framework | Next.js 16 (App Router) | RSC for zero-JS server pages, streaming Suspense, ISR |
 | Language | TypeScript | Type safety across the full stack |
-| Database | Vercel Postgres (Neon) | Serverless Postgres with HTTP driver for edge compatibility |
+| Database | Neon Postgres | Serverless Postgres with HTTP driver for edge/Lambda compatibility |
 | ORM | Drizzle | Type-safe queries, lightweight, Neon HTTP driver support |
 | Cache | Upstash Redis | Low-latency caching for feed data and query results |
 | Auth | Auth.js v5 + Google OAuth | JWT sessions, custom adapter for our user schema |
@@ -95,10 +95,11 @@ Cache keys follow the pattern: `entity:id:variant`
 
 ### ISR (Next.js)
 
-All pages use `revalidate = 60` (1 minute). On Vercel, this means:
+All pages use `revalidate = 60` (1 minute). This means:
 - First request after 60s triggers a background regeneration
 - Users always get a cached response (stale-while-revalidate)
 - New data appears within ~60 seconds of a mutation
+- On AWS (SST/OpenNext), ISR revalidation is handled via SQS + Lambda
 
 ### Why Not revalidatePath
 
