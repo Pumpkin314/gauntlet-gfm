@@ -5,6 +5,7 @@ import { ContentFeed } from '@/components/content-feed';
 import { ActivityFeed } from '@/components/profile/activity-feed';
 import { FundraiserCard } from '@/components/shared/fundraiser-card';
 import { GivingIdentityCard } from '@/components/profile/giving-identity-card';
+import { GivingWrappedCard } from '@/components/profile/giving-wrapped-card';
 import { ProfileHeader } from '@/components/profile/profile-header';
 import { getCurrentUser } from '@/lib/auth';
 import { getContentByAuthorId } from '@/lib/queries/content';
@@ -103,6 +104,15 @@ export default async function ProfilePage({
       {/* Giving Identity Card */}
       <div className="mt-8">
         <GivingIdentityCard summary={givingSummary} />
+      </div>
+
+      {/* Giving Wrapped */}
+      <div className="mt-6">
+        <GivingWrappedCard
+          displayName={user.displayName}
+          username={user.username}
+          summary={givingSummary}
+        />
       </div>
 
       {/* Fundraisers */}
