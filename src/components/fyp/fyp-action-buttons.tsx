@@ -1,11 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import { Heart, MessageCircle, DollarSign, Share2, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
+import { FYPQuickDonate } from './fyp-quick-donate';
+
 interface FYPActionButtonsProps {
   postId: string;
+  fundraiserId: string | null;
   fundraiserSlug: string | null;
+  fundraiserTitle: string | null;
   reactionCount: number;
   commentCount: number;
 }
@@ -58,10 +63,17 @@ function formatCount(count: number): string {
 }
 
 export function FYPActionButtons({
+  postId,
+  fundraiserId,
+  fundraiserSlug,
+  fundraiserTitle,
   reactionCount,
   commentCount,
-  fundraiserSlug,
 }: FYPActionButtonsProps) {
+  const [donateOpen, setDonateOpen] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [localReactionCount, setLocalReactionCount] = useState(reactionCount);
+
   const handleShare = async () => {
     try {
       if (navigator.share) {
@@ -73,41 +85,67 @@ export function FYPActionButtons({
         await navigator.clipboard.writeText(window.location.href);
       }
     } catch {
-      // User cancelled or API not available — ignore
+      // User cancelled or API not available
     }
   };
 
+  const handleHeart = () => {
+    // Simple toggle for FYP — full ReactionButton is too complex for the right-rail
+    setLiked((prev) => !prev);
+    setLocalReactionCount((prev) => (liked ? prev - 1 : prev + 1));
+  };
+
   return (
-    <div className="pointer-events-auto flex flex-col items-center gap-4">
-      <ActionItem
-        icon={<Heart className="size-5 text-white" />}
-        label={formatCount(reactionCount)}
-      />
-
-      <ActionItem
-        icon={<MessageCircle className="size-5 text-white" />}
-        label={formatCount(commentCount)}
-      />
-
-      <ActionItem
-        icon={<DollarSign className="size-5 text-white" />}
-        label="Donate"
-        href={fundraiserSlug ? `/f/${fundraiserSlug}#donate` : undefined}
-      />
-
-      <ActionItem
-        icon={<Share2 className="size-5 text-white" />}
-        label="Share"
-        onClick={handleShare}
-      />
-
-      {fundraiserSlug && (
+    <>
+      <div className="pointer-events-auto flex flex-col items-center gap-4">
         <ActionItem
-          icon={<ExternalLink className="size-5 text-white" />}
-          label="Fund It"
-          href={`/f/${fundraiserSlug}`}
+          icon={
+            <Heart
+              className={`size-5 ${liked ? 'fill-red-500 text-red-500' : 'text-white'}`}
+            />
+          }
+          label={formatCount(localReactionCount)}
+          onClick={handleHeart}
+        />
+
+        <ActionItem
+          icon={<MessageCircle className="size-5 text-white" />}
+          label={formatCount(commentCount)}
+          href={`/content/${postId}`}
+        />
+
+        {fundraiserId && (
+          <ActionItem
+            icon={<DollarSign className="size-5 text-white" />}
+            label="Donate"
+            onClick={() => setDonateOpen(true)}
+          />
+        )}
+
+        <ActionItem
+          icon={<Share2 className="size-5 text-white" />}
+          label="Share"
+          onClick={handleShare}
+        />
+
+        {fundraiserSlug && (
+          <ActionItem
+            icon={<ExternalLink className="size-5 text-white" />}
+            label="Fund It"
+            href={`/f/${fundraiserSlug}`}
+          />
+        )}
+      </div>
+
+      {/* Quick Donate bottom sheet */}
+      {fundraiserId && (
+        <FYPQuickDonate
+          fundraiserId={fundraiserId}
+          fundraiserTitle={fundraiserTitle ?? 'Fundraiser'}
+          open={donateOpen}
+          onOpenChange={setDonateOpen}
         />
       )}
-    </div>
+    </>
   );
 }

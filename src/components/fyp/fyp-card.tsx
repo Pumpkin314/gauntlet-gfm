@@ -205,7 +205,9 @@ export function FYPCard({ post, author, fundraiser, community }: FYPCardProps) {
       <div className="absolute bottom-28 right-3 z-20">
         <FYPActionButtons
           postId={post.id}
+          fundraiserId={fundraiser?.id ?? null}
           fundraiserSlug={fundraiser?.slug ?? null}
+          fundraiserTitle={fundraiser?.title ?? null}
           reactionCount={post.reactionCount ?? 0}
           commentCount={post.commentCount ?? 0}
         />

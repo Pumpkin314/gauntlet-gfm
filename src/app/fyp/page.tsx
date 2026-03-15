@@ -1,81 +1,60 @@
-import { desc, eq } from 'drizzle-orm';
-
-import { db } from '@/lib/db';
-import {
-  contentPosts,
-  users,
-  fundraisers,
-  communities,
-} from '@/lib/db/schema';
 import { getCurrentUser } from '@/lib/auth';
+import { rankFeed } from '@/lib/feed/rank';
+import type { FeedOptions } from '@/lib/feed/types';
 
 import type { FYPPostItem } from '@/components/fyp/fyp-shell';
 import { FYPShell } from '@/components/fyp/fyp-shell';
 
 export const revalidate = 60; // ISR: regenerate every 60 seconds
 
-async function getInitialPosts(): Promise<FYPPostItem[]> {
-  const rows = await db
-    .select({
-      post: {
-        id: contentPosts.id,
-        contentType: contentPosts.contentType,
-        title: contentPosts.title,
-        body: contentPosts.body,
-        mediaUrl: contentPosts.mediaUrl,
-        muxPlaybackId: contentPosts.muxPlaybackId,
-        thumbnailUrl: contentPosts.thumbnailUrl,
-        autoGenData: contentPosts.autoGenData,
-        viewCount: contentPosts.viewCount,
-        reactionCount: contentPosts.reactionCount,
-        commentCount: contentPosts.commentCount,
-        createdAt: contentPosts.createdAt,
-      },
-      author: {
-        id: users.id,
-        username: users.username,
-        displayName: users.displayName,
-        avatarUrl: users.avatarUrl,
-        image: users.image,
-      },
-      fundraiser: {
-        id: fundraisers.id,
-        slug: fundraisers.slug,
-        title: fundraisers.title,
-      },
-      community: {
-        id: communities.id,
-        slug: communities.slug,
-        name: communities.name,
-        logoUrl: communities.logoUrl,
-      },
-    })
-    .from(contentPosts)
-    .leftJoin(users, eq(contentPosts.authorId, users.id))
-    .leftJoin(fundraisers, eq(contentPosts.fundraiserId, fundraisers.id))
-    .leftJoin(communities, eq(contentPosts.communityId, communities.id))
-    .where(eq(contentPosts.status, 'published'))
-    .orderBy(desc(contentPosts.createdAt))
-    .limit(10);
+const VALID_SOURCES = new Set(['fundraiser', 'community', 'profile', 'discover']);
 
-  return rows.map((row) => ({
-    post: row.post,
-    author: row.author,
-    fundraiser: row.fundraiser,
-    community: row.community,
-  }));
+interface FYPPageProps {
+  searchParams: Promise<{
+    source?: string;
+    id?: string;
+    startAtPostId?: string;
+  }>;
 }
 
-export default async function FYPPage() {
-  const [posts, user] = await Promise.all([
-    getInitialPosts(),
+export default async function FYPPage({ searchParams }: FYPPageProps) {
+  const params = await searchParams;
+
+  const source = VALID_SOURCES.has(params.source ?? '')
+    ? (params.source as FeedOptions['source'])
+    : 'discover';
+  const id = params.id;
+  const startAtPostId = params.startAtPostId;
+
+  const feedOptions: FeedOptions = {
+    source,
+    id,
+    limit: 10,
+  };
+
+  const [feedResult, user] = await Promise.all([
+    rankFeed(feedOptions),
     getCurrentUser(),
   ]);
 
+  const initialPosts: FYPPostItem[] = feedResult.items.map((item) => ({
+    post: {
+      ...item.post,
+      contentType: item.post.contentType as FYPPostItem['post']['contentType'],
+    },
+    author: item.author,
+    fundraiser: item.fundraiser,
+    community: item.community,
+  }));
+
   return (
     <FYPShell
-      initialPosts={posts}
+      initialPosts={initialPosts}
+      initialCursor={feedResult.nextCursor}
       user={user ? { name: user.name, image: user.image } : null}
+      source={source}
+      id={id}
+      startAtPostId={startAtPostId}
     />
   );
 }

@@ -14,9 +14,12 @@ export const donationSchema = z.object({
   amountCents: z.number().int().min(100).max(100000000),
   message: z.string().max(500).optional(),
   isAnonymous: z.boolean().default(false),
+  source: z
+    .enum(['fundraiser_page', 'fyp_quick_donate', 'micro_reaction', 'community_page'])
+    .default('fundraiser_page'),
 });
 
-export type CreateDonationInput = z.infer<typeof donationSchema>;
+export type CreateDonationInput = z.input<typeof donationSchema>;
 
 export type CreateDonationResult =
   | { success: true; donationId: string }
@@ -34,7 +37,7 @@ export async function createDonation(
     };
   }
 
-  const { fundraiserId, amountCents, message, isAnonymous } = parsed.data;
+  const { fundraiserId, amountCents, message, isAnonymous, source } = parsed.data;
 
   // 2. Check authentication
   const user = await getCurrentUser();
@@ -88,7 +91,7 @@ export async function createDonation(
         amountCents,
         message: message || null,
         isAnonymous,
-        source: 'fundraiser_page',
+        source: source ?? 'fundraiser_page',
       })
       .returning({ id: donations.id });
 
