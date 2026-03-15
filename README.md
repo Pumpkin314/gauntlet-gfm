@@ -55,3 +55,6 @@ npm run dev                  # Start dev server at localhost:3000
 - `c4e23b1` — PR 5.2: Feed API route with ranking algorithm and cursor pagination
 - `c4b93ac` — PR 5.3: FYP client-side infinite scroll, quick donate sheet, scroll position persistence
 - `2543340` — PR 5.4: FYP entry points from nav, fundraiser, community, and profile pages
+
+### TB6: Observability + Metrics Dashboard
+- `2481ee5` — PR 6.1–6.4: Server/client instrumentation, admin metrics dashboard at /admin/metrics, action tracking across all surfaces
