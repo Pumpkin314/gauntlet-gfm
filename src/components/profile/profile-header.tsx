@@ -9,6 +9,10 @@ import {
 } from '@/components/ui/avatar';
 import { FollowButton } from '@/components/profile/follow-button';
 
+/** Tiny transparent blur placeholder for CLS prevention */
+const BLUR_DATA_URL =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk4YSMBAAAAABJRU5ErkJggg==';
+
 interface ProfileHeaderProps {
   user: {
     id: string;
@@ -57,6 +61,9 @@ export function ProfileHeader({
             fill
             className="object-cover"
             priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 896px"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
           />
         ) : (
           <div className="h-full w-full bg-gradient-to-r from-gfm-green/20 to-gfm-green/5" />
@@ -127,7 +134,7 @@ export function ProfileHeader({
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
             <Link
               href={`/fyp?source=profile&id=${user.id}`}
               className="inline-flex h-9 items-center rounded-full border border-gfm-green px-4 text-sm font-medium text-gfm-green transition-colors hover:bg-gfm-green hover:text-white"

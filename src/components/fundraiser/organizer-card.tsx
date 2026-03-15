@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 import {
@@ -77,9 +78,11 @@ export function OrganizerCard({
             className="mt-3 flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 group"
           >
             {community.logoUrl && (
-              <img
+              <Image
                 src={community.logoUrl}
                 alt={community.name}
+                width={20}
+                height={20}
                 className="h-5 w-5 rounded-full object-cover"
               />
             )}

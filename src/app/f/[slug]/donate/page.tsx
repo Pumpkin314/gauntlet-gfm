@@ -75,7 +75,7 @@ export default async function DonatePage({
       </div>
 
       {/* Form area */}
-      <div className="mx-auto max-w-lg px-4 py-8">
+      <div className="mx-auto max-w-lg px-4 py-6 pb-10 sm:py-8">
         <h1 className="text-xl font-bold text-gfm-dark sm:text-2xl">
           Make a donation
         </h1>

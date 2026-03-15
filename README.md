@@ -1,19 +1,45 @@
 # GoFundMe Reimagined
 
-A reimagined crowdfunding platform built with Next.js 15, React Server Components, and modern web technologies. Discover fundraisers, donate, and make a difference.
+A reimagined crowdfunding platform built with Next.js 16, React Server Components, and modern web technologies. Discover fundraisers, donate, and make a difference through a TikTok-style discovery feed.
 
 **Live:** https://gauntlet-gfm.vercel.app
+
+## Features
+
+- **Fundraiser Pages** — Rich campaign pages with hero images, progress tracking, donation lists, and content feeds
+- **Fund You Page** — TikTok-style vertical scroll discovery feed with full-viewport snap-scroll cards
+- **Community Pages** — Community hubs with activity feeds, leaderboards, and fundraiser directories
+- **Profile Pages** — Giving identity cards, activity feeds, and social connections
+- **Social Layer** — Reactions (6 types + micro-donate), comments, follows, and sharing
+- **Quick Donate** — One-tap donations from the FYP with preset amounts
+- **Admin Dashboard** — Real-time metrics with Web Vitals, action tracking, and event logs
+- **Full Observability** — Client-side Web Vitals, page views, action tracking via sendBeacon
 
 ## Tech Stack
 
 | Layer | Choice |
 |-------|--------|
-| Framework | Next.js 15, App Router, RSC, TypeScript |
+| Framework | Next.js 16, App Router, RSC, TypeScript |
 | Database | Vercel Postgres (Neon) + Drizzle ORM |
 | Cache | Upstash Redis |
 | Auth | Auth.js v5 + Google OAuth |
+| Video | Mux (HLS streaming + thumbnails) |
 | Styling | Tailwind CSS + shadcn/ui |
+| Charts | Recharts (admin dashboard) |
+| Analytics | Custom (Web Vitals + Postgres) |
 | Font | DM Sans |
+
+## Architecture
+
+All pages use **ISR** (60s revalidation) with **React Server Components** for the initial shell and `<Suspense>` for streaming data-heavy sections. Mutations use **API routes** (not server actions) to avoid RSC re-render crashes on Vercel.
+
+Key architectural decisions:
+- **No transactions**: Neon HTTP driver doesn't support `db.transaction()` — we use sequential queries with atomic SQL increments
+- **Denormalized counters**: `raisedCents`, `donationCount`, `reactionCount` updated atomically to avoid expensive aggregations
+- **sendBeacon analytics**: Client events batched for 1 second, sent via `navigator.sendBeacon` for reliable delivery during page unload
+- **Feed ranking**: Multi-signal algorithm (seed context → community → trending → chronological) with cursor pagination
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture documentation.
 
 ## Getting Started
 
@@ -23,6 +49,26 @@ cp .env.example .env.local  # Fill in credentials
 npm run db:seed              # Seed demo data
 npm run dev                  # Start dev server at localhost:3000
 ```
+
+### Required Environment Variables
+
+```
+DATABASE_URL          # Vercel Postgres / Neon connection string
+REDIS_URL             # Upstash Redis URL
+NEXTAUTH_SECRET       # openssl rand -base64 32
+NEXTAUTH_URL          # http://localhost:3000 (dev)
+GOOGLE_CLIENT_ID      # Google OAuth
+GOOGLE_CLIENT_SECRET  # Google OAuth
+MUX_TOKEN_ID          # Mux video (optional)
+MUX_TOKEN_SECRET      # Mux video (optional)
+```
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md) — Rendering strategy, data model, caching, feed ranking
+- [AI Usage](docs/AI_USAGE.md) — How AI was used to accelerate development
+- [Observability](docs/OBSERVABILITY.md) — What's tracked, how, and the admin dashboard guide
+- [Sprint Plan](docs/gofundme-sprint-plan.md) — Full development plan with parallelization maps
 
 ## Commit History
 

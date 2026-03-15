@@ -141,24 +141,26 @@ export function CommunityTabs({
 
   return (
     <div>
-      {/* Tab triggers */}
-      <div className="flex border-b border-border">
-        {tabs.map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => setTab(tab.value)}
-            className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
-              currentTab === tab.value
-                ? 'text-gfm-dark'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {tab.label}
-            {currentTab === tab.value && (
-              <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gfm-green" />
-            )}
-          </button>
-        ))}
+      {/* Tab triggers — scrolls horizontally on mobile if tabs overflow */}
+      <div className="-mx-4 overflow-x-auto scrollbar-hide sm:mx-0">
+        <div className="flex min-w-max border-b border-border px-4 sm:px-0">
+          {tabs.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setTab(tab.value)}
+              className={`relative whitespace-nowrap px-4 py-2.5 text-sm font-medium transition-colors ${
+                currentTab === tab.value
+                  ? 'text-gfm-dark'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {tab.label}
+              {currentTab === tab.value && (
+                <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gfm-green" />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Tab content */}
@@ -270,6 +272,11 @@ function ActivityTab({
       <aside className="hidden lg:block">
         <Leaderboard entries={leaderboard} />
       </aside>
+
+      {/* Leaderboard below content (mobile) */}
+      <div className="mt-6 lg:hidden">
+        <Leaderboard entries={leaderboard} />
+      </div>
     </div>
   );
 }

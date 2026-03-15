@@ -128,7 +128,7 @@ function FYPBottomOverlay({
   community,
 }: FYPCardProps) {
   return (
-    <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-4 pb-6 pt-20">
+    <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-4 pb-8 pt-20 sm:pb-6" style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom, 0px))' }}>
       {/* Author line */}
       {author && (
         <Link
@@ -158,7 +158,7 @@ function FYPBottomOverlay({
       )}
 
       {/* Badges */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 pr-14 sm:pr-16">
         {fundraiser && (
           <Link
             href={`/f/${fundraiser.slug}`}
@@ -202,7 +202,7 @@ export function FYPCard({ post, author, fundraiser, community }: FYPCardProps) {
       <FYPMedia post={post} />
 
       {/* Right-rail action buttons */}
-      <div className="absolute bottom-28 right-3 z-20">
+      <div className="absolute bottom-32 right-2 z-20 sm:bottom-28 sm:right-3">
         <FYPActionButtons
           postId={post.id}
           fundraiserId={fundraiser?.id ?? null}

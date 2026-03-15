@@ -1,5 +1,9 @@
 import Image from 'next/image';
 
+/** Tiny transparent blur placeholder for CLS prevention */
+const BLUR_DATA_URL =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk4YSMBAAAAABJRU5ErkJggg==';
+
 interface HeroImageProps {
   src: string | null;
   alt: string;
@@ -23,6 +27,8 @@ export function HeroImage({ src, alt }: HeroImageProps) {
         priority
         className="object-cover"
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 720px"
+        placeholder="blur"
+        blurDataURL={BLUR_DATA_URL}
       />
     </div>
   );

@@ -29,11 +29,11 @@ export function ImpactStats({
   return (
     <div className="flex items-center divide-x divide-border">
       {stats.map((stat) => (
-        <div key={stat.label} className="flex-1 px-4 py-3 text-center first:pl-0 last:pr-0">
-          <p className="text-lg font-bold text-gfm-dark sm:text-xl">
+        <div key={stat.label} className="flex-1 px-2 py-3 text-center sm:px-4 first:pl-0 last:pr-0">
+          <p className="text-base font-bold text-gfm-dark sm:text-xl">
             {stat.value}
           </p>
-          <p className="text-xs text-muted-foreground sm:text-sm">
+          <p className="text-[11px] text-muted-foreground sm:text-sm">
             {stat.label}
           </p>
         </div>

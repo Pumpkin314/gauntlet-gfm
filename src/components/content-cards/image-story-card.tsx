@@ -28,6 +28,7 @@ export function ImageStoryCard({
         alt={title ?? 'Story image'}
         fill
         className="object-cover"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 640px"
       />
       {title && (
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-12">

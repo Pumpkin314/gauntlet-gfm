@@ -81,7 +81,7 @@ export default async function FundraiserPage({
 
   return (
     <>
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:pb-6">
         <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8">
           {/* Left column — main content */}
           <div className="min-w-0">

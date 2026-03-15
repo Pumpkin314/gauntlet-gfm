@@ -110,7 +110,7 @@ export function ActivityFeed({ donations, fundraisers }: ActivityFeedProps) {
           return (
             <div
               key={`donation-${item.donation.id}`}
-              className="flex items-start gap-3 border-b border-border py-3 last:border-b-0"
+              className="flex items-start gap-3 border-b border-border py-4 last:border-b-0 sm:py-3"
             >
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gfm-green/10">
                 <Heart className="h-4 w-4 text-gfm-green" />
@@ -147,7 +147,7 @@ export function ActivityFeed({ donations, fundraisers }: ActivityFeedProps) {
         return (
           <div
             key={`fundraiser-${item.fundraiser.slug}-${idx}`}
-            className="flex items-start gap-3 border-b border-border py-3 last:border-b-0"
+            className="flex items-start gap-3 border-b border-border py-4 last:border-b-0 sm:py-3"
           >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50">
               <Megaphone className="h-4 w-4 text-blue-600" />

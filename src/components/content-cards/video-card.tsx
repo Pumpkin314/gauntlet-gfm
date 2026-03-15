@@ -19,6 +19,7 @@ export function VideoCard({ playbackId, title, thumbnailUrl }: VideoCardProps) {
             alt={title ?? 'Video thumbnail'}
             fill
             className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 640px"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-muted-foreground">

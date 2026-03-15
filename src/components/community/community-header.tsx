@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 import {
   Avatar,
   AvatarFallback,
@@ -6,6 +8,10 @@ import {
 } from '@/components/ui/avatar';
 
 import { FollowButton } from './follow-button';
+
+/** Tiny transparent blur placeholder for CLS prevention */
+const BLUR_DATA_URL =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk4YSMBAAAAABJRU5ErkJggg==';
 
 interface CommunityHeaderProps {
   community: {
@@ -44,12 +50,17 @@ export function CommunityHeader({
   return (
     <div>
       {/* Banner */}
-      <div className="relative h-[200px] w-full overflow-hidden rounded-xl bg-muted sm:h-[240px] md:h-[280px]">
+      <div className="relative aspect-[2/1] w-full overflow-hidden rounded-xl bg-muted sm:aspect-auto sm:h-[240px] md:h-[280px]">
         {community.bannerImageUrl ? (
-          <img
+          <Image
             src={community.bannerImageUrl}
             alt={`${community.name} banner`}
-            className="h-full w-full object-cover"
+            fill
+            priority
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1152px"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gfm-green/20 to-gfm-green/5">
@@ -63,10 +74,13 @@ export function CommunityHeader({
         {community.logoUrl && (
           <div className="absolute -bottom-6 left-4 sm:left-6">
             <div className="rounded-xl border-4 border-background bg-background shadow-sm">
-              <img
+              <Image
                 src={community.logoUrl}
                 alt={`${community.name} logo`}
+                width={80}
+                height={80}
                 className="h-16 w-16 rounded-lg object-cover sm:h-20 sm:w-20"
+                sizes="80px"
               />
             </div>
           </div>

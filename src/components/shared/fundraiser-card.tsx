@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { ProgressBar } from '@/components/fundraiser/progress-bar';
@@ -7,6 +8,10 @@ import {
   AvatarImage,
 } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+
+/** Tiny transparent blur placeholder for CLS prevention */
+const BLUR_DATA_URL =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk4YSMBAAAAABJRU5ErkJggg==';
 
 interface FundraiserCardProps {
   fundraiser: {
@@ -56,12 +61,16 @@ export function FundraiserCard({
       }`}
     >
       {/* Hero thumbnail (16:9) */}
-      <div className="aspect-video w-full overflow-hidden bg-muted">
+      <div className="relative aspect-video w-full overflow-hidden bg-muted">
         {fundraiser.heroImageUrl ? (
-          <img
+          <Image
             src={fundraiser.heroImageUrl}
             alt={fundraiser.title}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
@@ -99,9 +108,11 @@ export function FundraiserCard({
         {community && (
           <div className="mt-1.5 flex items-center gap-1.5">
             {community.logoUrl && (
-              <img
+              <Image
                 src={community.logoUrl}
                 alt={community.name}
+                width={16}
+                height={16}
                 className="h-4 w-4 rounded-full object-cover"
               />
             )}

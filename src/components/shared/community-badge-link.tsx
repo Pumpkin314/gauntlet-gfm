@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
@@ -19,9 +20,11 @@ export function CommunityBadgeLink({
       className="inline-flex items-center gap-1.5 group"
     >
       {logoUrl && (
-        <img
+        <Image
           src={logoUrl}
           alt={name}
+          width={16}
+          height={16}
           className="h-4 w-4 rounded-full object-cover"
         />
       )}
