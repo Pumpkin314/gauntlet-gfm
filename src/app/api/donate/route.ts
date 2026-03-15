@@ -135,11 +135,11 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error('[POST /api/donate] Unhandled error:', err);
-    const message = err instanceof Error ? err.message : String(err);
+    console.error('[POST /api/donate]', err);
     return NextResponse.json(
       {
         success: false,
-        error: `Server error: ${message}`,
+        error: 'An unexpected error occurred. Please try again.',
       },
       { status: 500 },
     );
