@@ -100,3 +100,66 @@ export async function getContentByAuthorId(authorId: string, limit = 20) {
     .orderBy(desc(contentPosts.createdAt))
     .limit(limit);
 }
+
+/**
+ * Fetch a single content post by ID with full joins: author, fundraiser, community.
+ * Returns null if not found.
+ */
+export async function getContentPostById(postId: string) {
+  const [row] = await db
+    .select(contentFeedSelect)
+    .from(contentPosts)
+    .leftJoin(users, eq(contentPosts.authorId, users.id))
+    .leftJoin(fundraisers, eq(contentPosts.fundraiserId, fundraisers.id))
+    .leftJoin(communities, eq(contentPosts.communityId, communities.id))
+    .where(eq(contentPosts.id, postId));
+
+  return row ?? null;
+}
+
+/**
+ * Fetch a fundraiser with organizer + community joins for the FundraiserCard component.
+ * Returns null if not found.
+ */
+export async function getFundraiserForCard(fundraiserId: string) {
+  const [row] = await db
+    .select({
+      fundraiser: {
+        slug: fundraisers.slug,
+        title: fundraisers.title,
+        heroImageUrl: fundraisers.heroImageUrl,
+        raisedCents: fundraisers.raisedCents,
+        goalCents: fundraisers.goalCents,
+        donationCount: fundraisers.donationCount,
+      },
+      organizer: {
+        username: users.username,
+        displayName: users.displayName,
+        avatarUrl: users.avatarUrl,
+        image: users.image,
+      },
+      community: {
+        slug: communities.slug,
+        name: communities.name,
+        logoUrl: communities.logoUrl,
+      },
+    })
+    .from(fundraisers)
+    .leftJoin(users, eq(fundraisers.organizerId, users.id))
+    .leftJoin(communities, eq(fundraisers.communityId, communities.id))
+    .where(eq(fundraisers.id, fundraiserId));
+
+  return row ?? null;
+}
+
+/**
+ * Get all published content post IDs — used by generateStaticParams.
+ */
+export async function getAllContentPostIds(): Promise<{ postId: string }[]> {
+  const rows = await db
+    .select({ id: contentPosts.id })
+    .from(contentPosts)
+    .where(eq(contentPosts.status, 'published'));
+
+  return rows.map((row) => ({ postId: row.id }));
+}
