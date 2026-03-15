@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 
+import { ContentFeed } from '@/components/content-feed';
 import { DonationsList } from '@/components/donations/donations-list';
 import { DonationsSkeleton } from '@/components/donations/donations-skeleton';
 import { Description } from '@/components/fundraiser/description';
@@ -11,6 +12,7 @@ import { HeroImage } from '@/components/fundraiser/hero-image';
 import { MobileDonateBar } from '@/components/fundraiser/mobile-donate-bar';
 import { OrganizerCard } from '@/components/fundraiser/organizer-card';
 import { ProgressBar } from '@/components/fundraiser/progress-bar';
+import { getContentByFundraiserId } from '@/lib/queries/content';
 import {
   getAllFundraiserSlugs,
   getFundraiserBySlug,
@@ -74,6 +76,7 @@ export default async function FundraiserPage({
   }
 
   const { fundraiser, organizer, community } = data;
+  const contentItems = await getContentByFundraiserId(fundraiser.id);
 
   return (
     <>
@@ -130,6 +133,19 @@ export default async function FundraiserPage({
                 <DonationsList fundraiserId={fundraiser.id} />
               </Suspense>
             </section>
+
+            {/* Content feed */}
+            {contentItems.length > 0 && (
+              <>
+                <hr className="my-6 border-border" />
+                <section>
+                  <h2 className="mb-4 text-lg font-bold text-gfm-dark">
+                    Updates &amp; Content
+                  </h2>
+                  <ContentFeed items={contentItems} />
+                </section>
+              </>
+            )}
           </div>
 
           {/* Right column — sticky sidebar (desktop only) */}

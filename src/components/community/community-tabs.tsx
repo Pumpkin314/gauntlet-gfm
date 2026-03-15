@@ -4,6 +4,13 @@ import Link from 'next/link';
 import { usePathname,useRouter, useSearchParams } from 'next/navigation';
 import { useCallback } from 'react';
 
+import { ContentCard } from '@/components/content-cards';
+import type {
+  ContentAuthor,
+  ContentCommunity,
+  ContentFundraiser,
+  ContentPostData,
+} from '@/components/content-cards';
 import {
   Avatar,
   AvatarFallback,
@@ -57,6 +64,13 @@ interface Member {
   joinedAt: Date | null;
 }
 
+interface ContentItem {
+  post: ContentPostData;
+  author: ContentAuthor | null;
+  fundraiser: ContentFundraiser | null;
+  community: ContentCommunity | null;
+}
+
 interface CommunityTabsProps {
   fundraisers: Array<{ fundraiser: Fundraiser; organizer: Organizer | null }>;
   leaderboard: Array<{
@@ -72,6 +86,7 @@ interface CommunityTabsProps {
   posts: Array<{ post: Post; author: Organizer | null }>;
   members: Array<{ member: Member; user: Organizer | null }>;
   communityDescription: string | null;
+  contentItems?: ContentItem[];
 }
 
 type TabValue = 'activity' | 'fundraisers' | 'about';
@@ -86,27 +101,13 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-// ---------- Content type display ----------
-
-function contentTypeLabel(type: string): string {
-  const map: Record<string, string> = {
-    video: 'Video',
-    image_story: 'Story',
-    milestone: 'Milestone',
-    community_pulse: 'Pulse',
-    donor_spotlight: 'Spotlight',
-    challenge: 'Challenge',
-    text_update: 'Update',
-  };
-  return map[type] ?? 'Post';
-}
-
 export function CommunityTabs({
   fundraisers,
   leaderboard,
   posts,
   members,
   communityDescription,
+  contentItems,
 }: CommunityTabsProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -161,7 +162,11 @@ export function CommunityTabs({
       {/* Tab content */}
       <div className="mt-6">
         {currentTab === 'activity' && (
-          <ActivityTab posts={posts} leaderboard={leaderboard} />
+          <ActivityTab
+            posts={posts}
+            leaderboard={leaderboard}
+            contentItems={contentItems}
+          />
         )}
         {currentTab === 'fundraisers' && (
           <FundraisersTab
@@ -185,14 +190,49 @@ export function CommunityTabs({
 function ActivityTab({
   posts,
   leaderboard,
+  contentItems,
 }: {
   posts: Array<{ post: Post; author: Organizer | null }>;
   leaderboard: CommunityTabsProps['leaderboard'];
+  contentItems?: ContentItem[];
 }) {
+  // Use rich ContentCard rendering when contentItems are available;
+  // fall back to mapping posts to ContentCard shape otherwise.
+  const items: ContentItem[] =
+    contentItems && contentItems.length > 0
+      ? contentItems
+      : posts.map(({ post, author }) => ({
+          post: {
+            id: post.id,
+            contentType: post.contentType as ContentPostData['contentType'],
+            title: post.title,
+            body: post.body,
+            mediaUrl: post.mediaUrl,
+            muxPlaybackId: null,
+            thumbnailUrl: post.thumbnailUrl,
+            autoGenData: null,
+            viewCount: post.viewCount,
+            reactionCount: post.reactionCount,
+            commentCount: post.commentCount,
+            createdAt: post.createdAt,
+          },
+          author: author
+            ? {
+                id: author.id,
+                username: author.username,
+                displayName: author.displayName,
+                avatarUrl: author.avatarUrl,
+                image: author.image,
+              }
+            : null,
+          fundraiser: null,
+          community: null,
+        }));
+
   return (
     <div className="lg:grid lg:grid-cols-[1fr_280px] lg:gap-6">
       <div>
-        {posts.length === 0 ? (
+        {items.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border py-12 text-center">
             <p className="text-sm text-muted-foreground">
               No activity yet. Check back soon!
@@ -200,8 +240,14 @@ function ActivityTab({
           </div>
         ) : (
           <div className="space-y-4">
-            {posts.map(({ post, author }) => (
-              <PostCard key={post.id} post={post} author={author} />
+            {items.map((item) => (
+              <ContentCard
+                key={item.post.id}
+                post={item.post}
+                author={item.author}
+                fundraiser={item.fundraiser}
+                community={item.community}
+              />
             ))}
           </div>
         )}
@@ -211,94 +257,6 @@ function ActivityTab({
       <aside className="hidden lg:block">
         <Leaderboard entries={leaderboard} />
       </aside>
-    </div>
-  );
-}
-
-// ---------- Post Card ----------
-
-function PostCard({
-  post,
-  author,
-}: {
-  post: Post;
-  author: Organizer | null;
-}) {
-  const avatarSrc = author?.avatarUrl ?? author?.image;
-
-  return (
-    <div className="rounded-xl border border-border bg-background p-4">
-      {/* Author + date */}
-      <div className="flex items-center gap-2">
-        {author && (
-          <Link href={`/u/${author.username}`}>
-            <Avatar size="sm">
-              {avatarSrc && (
-                <AvatarImage src={avatarSrc} alt={author.displayName} />
-              )}
-              <AvatarFallback>
-                {getInitials(author.displayName)}
-              </AvatarFallback>
-            </Avatar>
-          </Link>
-        )}
-        <div className="min-w-0 flex-1">
-          {author && (
-            <Link
-              href={`/u/${author.username}`}
-              className="text-xs font-medium text-gfm-dark hover:underline"
-            >
-              {author.displayName}
-            </Link>
-          )}
-          <div className="flex items-center gap-2">
-            {post.createdAt && (
-              <span className="text-xs text-muted-foreground">
-                {formatRelativeDate(post.createdAt)}
-              </span>
-            )}
-            <Badge variant="secondary" className="h-4 px-1.5 py-0 text-[10px]">
-              {contentTypeLabel(post.contentType)}
-            </Badge>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      {post.title && (
-        <h4 className="mt-3 text-sm font-semibold text-gfm-dark">
-          {post.title}
-        </h4>
-      )}
-      {post.body && (
-        <p className="mt-1 text-sm leading-relaxed text-muted-foreground line-clamp-3">
-          {post.body}
-        </p>
-      )}
-
-      {/* Media thumbnail */}
-      {(post.thumbnailUrl || post.mediaUrl) && (
-        <div className="mt-3 overflow-hidden rounded-lg">
-          <img
-            src={post.thumbnailUrl || post.mediaUrl || ''}
-            alt={post.title ?? 'Post media'}
-            className="h-48 w-full object-cover"
-          />
-        </div>
-      )}
-
-      {/* Engagement stats */}
-      <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-        {(post.reactionCount ?? 0) > 0 && (
-          <span>{post.reactionCount} reactions</span>
-        )}
-        {(post.commentCount ?? 0) > 0 && (
-          <span>{post.commentCount} comments</span>
-        )}
-        {(post.viewCount ?? 0) > 0 && (
-          <span>{post.viewCount} views</span>
-        )}
-      </div>
     </div>
   );
 }
