@@ -1,11 +1,13 @@
 'use client';
 
 import { LogOut, User } from 'lucide-react';
+import Link from 'next/link';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -18,10 +20,11 @@ interface UserMenuProps {
     email?: string | null;
     image?: string | null;
   };
+  username?: string | null;
   signOutAction: () => Promise<void>;
 }
 
-export function UserMenu({ user, signOutAction }: UserMenuProps) {
+export function UserMenu({ user, username, signOutAction }: UserMenuProps) {
   const initials = (user.name ?? user.email ?? '?')
     .split(' ')
     .map((w) => w[0])
@@ -38,32 +41,40 @@ export function UserMenu({ user, signOutAction }: UserMenuProps) {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={8}>
-        <DropdownMenuLabel>
-          <div className="flex flex-col gap-0.5">
-            {user.name && (
-              <span className="text-sm font-medium">{user.name}</span>
-            )}
-            {user.email && (
-              <span className="text-xs text-muted-foreground">
-                {user.email}
-              </span>
-            )}
-          </div>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>
+            <div className="flex flex-col gap-0.5">
+              {user.name && (
+                <span className="text-sm font-medium">{user.name}</span>
+              )}
+              {user.email && (
+                <span className="text-xs text-muted-foreground">
+                  {user.email}
+                </span>
+              )}
+            </div>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <User className="mr-2 size-4" />
-          <span>Profile</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <form action={signOutAction}>
-          <button type="submit" className="w-full">
+        <DropdownMenuGroup>
+          <Link href={username ? `/u/${username}` : '/'}>
             <DropdownMenuItem>
-              <LogOut className="mr-2 size-4" />
-              <span>Sign out</span>
+              <User className="mr-2 size-4" />
+              <span>Profile</span>
             </DropdownMenuItem>
-          </button>
-        </form>
+          </Link>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <form action={signOutAction}>
+            <button type="submit" className="w-full">
+              <DropdownMenuItem>
+                <LogOut className="mr-2 size-4" />
+                <span>Sign out</span>
+              </DropdownMenuItem>
+            </button>
+          </form>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

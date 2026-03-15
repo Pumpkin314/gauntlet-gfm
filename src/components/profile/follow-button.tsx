@@ -1,7 +1,6 @@
 'use client';
 
 import { useTransition, useState } from 'react';
-import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { trackAction } from '@/lib/analytics/actions';
@@ -23,11 +22,9 @@ export function FollowButton({
 
   if (isOwnProfile) {
     return (
-      <Link href="/settings">
-        <Button variant="outline" size="sm">
-          Edit profile
-        </Button>
-      </Link>
+      <Button variant="outline" size="sm" disabled className="cursor-default opacity-60" title="Coming soon">
+        Edit profile
+      </Button>
     );
   }
 

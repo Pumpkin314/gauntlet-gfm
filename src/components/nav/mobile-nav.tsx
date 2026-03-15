@@ -22,10 +22,11 @@ interface MobileNavProps {
     email?: string | null;
     image?: string | null;
   } | null;
-  navLinks: ReadonlyArray<{ href: string; label: string }>;
+  username: string | null;
+  navLinks: ReadonlyArray<{ href: string; label: string; disabled?: boolean }>;
 }
 
-export function MobileNav({ user, navLinks }: MobileNavProps) {
+export function MobileNav({ user, username, navLinks }: MobileNavProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -52,21 +53,30 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
           </SheetHeader>
 
           <nav className="flex flex-1 flex-col gap-1 px-4 py-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="rounded-md px-3 py-2 text-base font-medium text-gfm-dark transition-colors hover:bg-muted hover:text-gfm-green"
-                onClick={() => setOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) =>
+              link.disabled ? (
+                <span
+                  key={link.label}
+                  className="rounded-md px-3 py-2 text-base font-medium text-muted-foreground cursor-default"
+                >
+                  {link.label}
+                </span>
+              ) : (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="rounded-md px-3 py-2 text-base font-medium text-gfm-dark transition-colors hover:bg-muted hover:text-gfm-green"
+                  onClick={() => setOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ),
+            )}
           </nav>
 
           <div className="border-t border-border px-4 py-4">
             {user ? (
-              <UserMenu user={user} signOutAction={signOutAction} />
+              <UserMenu user={user} username={username} signOutAction={signOutAction} />
             ) : (
               <SignInButton />
             )}
