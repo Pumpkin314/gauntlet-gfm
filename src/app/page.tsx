@@ -13,8 +13,8 @@ export default function Home() {
         make a difference.
       </p>
       <Link
-        href="#"
-        className="mt-8 inline-flex h-9 items-center justify-center rounded-lg bg-gfm-green px-4 text-sm font-medium text-white transition-colors hover:bg-gfm-green/90"
+        href="/fyp"
+        className="mt-8 inline-flex h-11 items-center justify-center rounded-lg bg-gfm-green px-6 text-sm font-bold text-white transition-colors hover:bg-gfm-green/90"
       >
         Discover fundraisers
       </Link>

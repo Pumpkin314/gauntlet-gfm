@@ -1,6 +1,7 @@
 'use client';
 
 import { LogOut, User } from 'lucide-react';
+import Link from 'next/link';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -18,10 +19,11 @@ interface UserMenuProps {
     email?: string | null;
     image?: string | null;
   };
+  username?: string | null;
   signOutAction: () => Promise<void>;
 }
 
-export function UserMenu({ user, signOutAction }: UserMenuProps) {
+export function UserMenu({ user, username, signOutAction }: UserMenuProps) {
   const initials = (user.name ?? user.email ?? '?')
     .split(' ')
     .map((w) => w[0])
@@ -51,10 +53,12 @@ export function UserMenu({ user, signOutAction }: UserMenuProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <User className="mr-2 size-4" />
-          <span>Profile</span>
-        </DropdownMenuItem>
+        <Link href={username ? `/u/${username}` : '/'}>
+          <DropdownMenuItem>
+            <User className="mr-2 size-4" />
+            <span>Profile</span>
+          </DropdownMenuItem>
+        </Link>
         <DropdownMenuSeparator />
         <form action={signOutAction}>
           <button type="submit" className="w-full">
