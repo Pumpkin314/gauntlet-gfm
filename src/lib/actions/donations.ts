@@ -80,31 +80,28 @@ export async function createDonation(
       .where(eq(users.id, user.id));
   }
 
-  // 5. Atomic transaction: INSERT donation + UPDATE fundraiser counters
-  const result = await db.transaction(async (tx) => {
-    const [donation] = await tx
-      .insert(donations)
-      .values({
-        donorId: user.id,
-        fundraiserId,
-        amountCents,
-        message: message || null,
-        isAnonymous,
-        source: source ?? 'fundraiser_page',
-      })
-      .returning({ id: donations.id });
+  // 5. INSERT donation + UPDATE fundraiser counters
+  // Note: Neon HTTP driver doesn't support transactions, so we run sequentially.
+  const [result] = await db
+    .insert(donations)
+    .values({
+      donorId: user.id,
+      fundraiserId,
+      amountCents,
+      message: message || null,
+      isAnonymous,
+      source: source ?? 'fundraiser_page',
+    })
+    .returning({ id: donations.id });
 
-    await tx
-      .update(fundraisers)
-      .set({
-        raisedCents: sql`${fundraisers.raisedCents} + ${amountCents}`,
-        donationCount: sql`${fundraisers.donationCount} + 1`,
-        updatedAt: new Date(),
-      })
-      .where(eq(fundraisers.id, fundraiserId));
-
-    return donation;
-  });
+  await db
+    .update(fundraisers)
+    .set({
+      raisedCents: sql`${fundraisers.raisedCents} + ${amountCents}`,
+      donationCount: sql`${fundraisers.donationCount} + 1`,
+      updatedAt: new Date(),
+    })
+    .where(eq(fundraisers.id, fundraiserId));
 
   // 6. Invalidate Redis cache (best-effort)
   try {

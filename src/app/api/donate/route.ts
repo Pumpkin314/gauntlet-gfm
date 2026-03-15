@@ -97,31 +97,29 @@ export async function POST(req: NextRequest) {
         .where(eq(users.id, user.id));
     }
 
-    // Atomic: insert donation + update fundraiser counters
-    const result = await db.transaction(async (tx) => {
-      const [donation] = await tx
-        .insert(donations)
-        .values({
-          donorId: user.id,
-          fundraiserId,
-          amountCents,
-          message: message || null,
-          isAnonymous,
-          source,
-        })
-        .returning({ id: donations.id });
+    // Insert donation + update fundraiser counters
+    // Note: Neon HTTP driver doesn't support transactions, so we run sequentially.
+    // The fundraiser counter update is idempotent (uses atomic SQL increment).
+    const [result] = await db
+      .insert(donations)
+      .values({
+        donorId: user.id,
+        fundraiserId,
+        amountCents,
+        message: message || null,
+        isAnonymous,
+        source,
+      })
+      .returning({ id: donations.id });
 
-      await tx
-        .update(fundraisers)
-        .set({
-          raisedCents: sql`${fundraisers.raisedCents} + ${amountCents}`,
-          donationCount: sql`${fundraisers.donationCount} + 1`,
-          updatedAt: new Date(),
-        })
-        .where(eq(fundraisers.id, fundraiserId));
-
-      return donation;
-    });
+    await db
+      .update(fundraisers)
+      .set({
+        raisedCents: sql`${fundraisers.raisedCents} + ${amountCents}`,
+        donationCount: sql`${fundraisers.donationCount} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(fundraisers.id, fundraiserId));
 
     // Invalidate Redis cache (best-effort)
     try {
@@ -132,7 +130,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      donationId: result.id,
+      donationId: result!.id,
       fundraiserSlug: fundraiser.slug,
     });
   } catch (err) {

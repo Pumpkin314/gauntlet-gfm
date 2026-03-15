@@ -1,7 +1,6 @@
 'use server';
 
 import { and, eq, sql } from 'drizzle-orm';
-import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
 import { getCurrentUser } from '@/lib/auth';
@@ -92,14 +91,14 @@ export async function toggleReaction(
       ),
     );
 
-  // 5. Perform the toggle in a transaction
-  const result = await db.transaction(async (tx) => {
+  // 5. Perform the toggle (sequential queries — Neon HTTP driver has no transaction support)
+  const result = await (async () => {
     if (existing) {
       if (existing.reactionType === data.reactionType) {
         // Same reaction type: un-react (delete)
-        await tx.delete(reactions).where(eq(reactions.id, existing.id));
+        await db.delete(reactions).where(eq(reactions.id, existing.id));
 
-        await tx
+        await db
           .update(contentPosts)
           .set({
             reactionCount: sql`GREATEST(${contentPosts.reactionCount} - 1, 0)`,
@@ -107,7 +106,7 @@ export async function toggleReaction(
           })
           .where(eq(contentPosts.id, data.contentPostId));
 
-        const [post] = await tx
+        const [post] = await db
           .select({ reactionCount: contentPosts.reactionCount })
           .from(contentPosts)
           .where(eq(contentPosts.id, data.contentPostId));
@@ -120,7 +119,7 @@ export async function toggleReaction(
         // Different reaction type: update
         // For micro_donate, deduct balance
         if (data.reactionType === 'micro_donate') {
-          await tx
+          await db
             .update(users)
             .set({
               mockBalanceCents: sql`${users.mockBalanceCents} - ${data.microDonationCents!}`,
@@ -128,7 +127,7 @@ export async function toggleReaction(
             .where(eq(users.id, user.id));
         }
 
-        await tx
+        await db
           .update(reactions)
           .set({
             reactionType: data.reactionType,
@@ -139,7 +138,7 @@ export async function toggleReaction(
           })
           .where(eq(reactions.id, existing.id));
 
-        const [post] = await tx
+        const [post] = await db
           .select({ reactionCount: contentPosts.reactionCount })
           .from(contentPosts)
           .where(eq(contentPosts.id, data.contentPostId));
@@ -153,7 +152,7 @@ export async function toggleReaction(
       // No existing reaction: insert new one
       // For micro_donate, deduct balance
       if (data.reactionType === 'micro_donate') {
-        await tx
+        await db
           .update(users)
           .set({
             mockBalanceCents: sql`${users.mockBalanceCents} - ${data.microDonationCents!}`,
@@ -161,7 +160,7 @@ export async function toggleReaction(
           .where(eq(users.id, user.id));
       }
 
-      await tx.insert(reactions).values({
+      await db.insert(reactions).values({
         userId: user.id,
         contentPostId: data.contentPostId,
         reactionType: data.reactionType,
@@ -171,7 +170,7 @@ export async function toggleReaction(
             : null,
       });
 
-      await tx
+      await db
         .update(contentPosts)
         .set({
           reactionCount: sql`${contentPosts.reactionCount} + 1`,
@@ -179,7 +178,7 @@ export async function toggleReaction(
         })
         .where(eq(contentPosts.id, data.contentPostId));
 
-      const [post] = await tx
+      const [post] = await db
         .select({ reactionCount: contentPosts.reactionCount })
         .from(contentPosts)
         .where(eq(contentPosts.id, data.contentPostId));
@@ -189,7 +188,7 @@ export async function toggleReaction(
         reactionCount: post?.reactionCount ?? 0,
       };
     }
-  });
+  })();
 
   // 6. Invalidate cache
   try {
@@ -198,9 +197,6 @@ export async function toggleReaction(
   } catch {
     // Cache invalidation is best-effort
   }
-
-  // 7. Revalidate paths
-  revalidatePath('/');
 
   return {
     success: true,
