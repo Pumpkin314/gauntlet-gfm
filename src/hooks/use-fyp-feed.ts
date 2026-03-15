@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 
 import type { FeedItem, FeedResponse } from '@/lib/feed/types';
 
@@ -31,6 +31,12 @@ export function useFYPFeed({
     new Set(initialItems.map((item) => item.post.id)),
   );
 
+  // Stable key derived from initial data to detect actual content changes
+  const initialKey = useMemo(
+    () => initialItems.map((item) => item.post.id).join(','),
+    [initialItems],
+  );
+
   // Reset when initial data changes (e.g. route change)
   useEffect(() => {
     setItems(initialItems);
@@ -38,7 +44,8 @@ export function useFYPFeed({
     setHasMore(initialCursor !== null);
     setError(null);
     seenIdsRef.current = new Set(initialItems.map((item) => item.post.id));
-  }, [initialItems, initialCursor]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialKey]);
 
   const fetchMore = useCallback(async () => {
     if (isFetchingRef.current || !cursor) return;
