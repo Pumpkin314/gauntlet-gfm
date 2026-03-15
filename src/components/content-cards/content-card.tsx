@@ -145,7 +145,7 @@ export function ContentCard({
             <span className="truncate text-xs text-muted-foreground">
               &middot;{' '}
               <Link
-                href={`/fundraiser/${fundraiser.slug}`}
+                href={`/f/${fundraiser.slug}`}
                 className="hover:underline"
               >
                 {fundraiser.title}
