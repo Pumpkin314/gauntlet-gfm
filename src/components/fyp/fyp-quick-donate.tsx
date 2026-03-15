@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { DollarSign, Check, Loader2 } from 'lucide-react';
 
 import {
@@ -11,7 +11,7 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { createDonation } from '@/lib/actions/donations';
+// Uses /api/donate route instead of server action to avoid RSC re-render crashes
 
 const PRESETS = [500, 1000, 2500, 5000] as const;
 
@@ -31,7 +31,7 @@ export function FYPQuickDonate({
   const [selectedCents, setSelectedCents] = useState<number>(1000);
   const [customAmount, setCustomAmount] = useState('');
   const [isCustom, setIsCustom] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [result, setResult] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -51,19 +51,24 @@ export function FYPQuickDonate({
     setIsCustom(true);
   }
 
-  function handleSubmit() {
-    if (!isValidAmount) return;
+  async function handleSubmit() {
+    if (!isValidAmount || isPending) return;
 
-    startTransition(async () => {
-      const res = await createDonation({
-        fundraiserId,
-        amountCents,
-        source: 'fyp_quick_donate',
+    setIsPending(true);
+    try {
+      const response = await fetch('/api/donate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fundraiserId,
+          amountCents,
+          source: 'fyp_quick_donate',
+        }),
       });
+      const res = await response.json();
 
       if (res.success) {
         setResult('success');
-        // Auto-close after brief confirmation
         setTimeout(() => {
           setResult('idle');
           onOpenChange(false);
@@ -72,7 +77,12 @@ export function FYPQuickDonate({
         setResult('error');
         setErrorMessage(res.error);
       }
-    });
+    } catch {
+      setResult('error');
+      setErrorMessage('Network error. Please try again.');
+    } finally {
+      setIsPending(false);
+    }
   }
 
   function handleClose(nextOpen: boolean) {

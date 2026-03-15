@@ -1,13 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useState, useTransition } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  createDonation,
-  type CreateDonationResult,
-} from '@/lib/actions/donations';
 import { formatCents } from '@/lib/format';
 
 const PRESET_AMOUNTS_CENTS = [2500, 5000, 10000, 25000] as const;
@@ -20,6 +16,10 @@ interface DonateFormProps {
   goalCents: number;
   isAuthenticated: boolean;
 }
+
+type DonateResult =
+  | { success: true; donationId: string; fundraiserSlug: string }
+  | { success: false; error: string };
 
 export function DonateForm({
   fundraiserId,
@@ -34,8 +34,8 @@ export function DonateForm({
   const [isCustom, setIsCustom] = useState(false);
   const [message, setMessage] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [result, setResult] = useState<CreateDonationResult | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [result, setResult] = useState<DonateResult | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
   const amountCents = isCustom
     ? Math.round(parseFloat(customAmount || '0') * 100)
@@ -53,22 +53,32 @@ export function DonateForm({
   }, []);
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
 
-      if (amountCents < 100) return;
+      if (amountCents < 100 || isPending) return;
 
-      startTransition(async () => {
-        const res = await createDonation({
-          fundraiserId,
-          amountCents,
-          message: message.trim() || undefined,
-          isAnonymous,
+      setIsPending(true);
+      try {
+        const res = await fetch('/api/donate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fundraiserId,
+            amountCents,
+            message: message.trim() || undefined,
+            isAnonymous,
+          }),
         });
-        setResult(res);
-      });
+        const data: DonateResult = await res.json();
+        setResult(data);
+      } catch {
+        setResult({ success: false, error: 'Network error. Please try again.' });
+      } finally {
+        setIsPending(false);
+      }
     },
-    [fundraiserId, amountCents, message, isAnonymous],
+    [fundraiserId, amountCents, message, isAnonymous, isPending],
   );
 
   const percentage = Math.min(
