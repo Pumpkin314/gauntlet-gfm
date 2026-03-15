@@ -1,7 +1,6 @@
 'use server';
 
 import { eq, sql } from 'drizzle-orm';
-import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
 import { getCurrentUser } from '@/lib/auth';
@@ -22,7 +21,7 @@ export const donationSchema = z.object({
 export type CreateDonationInput = z.input<typeof donationSchema>;
 
 export type CreateDonationResult =
-  | { success: true; donationId: string }
+  | { success: true; donationId: string; fundraiserSlug: string }
   | { success: false; error: string };
 
 export async function createDonation(
@@ -107,18 +106,19 @@ export async function createDonation(
     return donation;
   });
 
-  // 6. Invalidate Redis cache + bust ISR cache (best-effort)
+  // 6. Invalidate Redis cache (best-effort)
   try {
     await invalidateCache('fundraiser:*');
   } catch {
     // Cache invalidation is best-effort; don't fail the donation
   }
 
-  try {
-    revalidatePath(`/f/${fundraiser.slug}`);
-  } catch {
-    // ISR revalidation is best-effort
-  }
+  // NOTE: We intentionally do NOT call revalidatePath here.
+  // revalidatePath triggers an RSC re-render of the current page after
+  // the action completes. On Vercel, this re-render can crash with
+  // "An error occurred in the Server Components render" — crashing the
+  // entire donate page. The ISR cache (revalidate=60) will pick up the
+  // new data within a minute. The client shows success immediately.
 
-  return { success: true, donationId: result.id };
+  return { success: true, donationId: result.id, fundraiserSlug: fundraiser.slug };
 }
