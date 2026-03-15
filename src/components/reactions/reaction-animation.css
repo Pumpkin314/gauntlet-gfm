@@ -1,0 +1,57 @@
+/* Reaction button scale animation */
+@keyframes reaction-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.reaction-pop {
+  animation: reaction-pop 0.3s ease-out;
+}
+
+/* Emoji float-up animation */
+@keyframes reaction-float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(-20px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.8);
+  }
+}
+
+.reaction-float-up {
+  animation: reaction-float-up 0.6s ease-out forwards;
+  pointer-events: none;
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Picker reveal animation */
+@keyframes reaction-picker-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.reaction-picker-reveal {
+  animation: reaction-picker-reveal 0.2s ease-out;
+}
