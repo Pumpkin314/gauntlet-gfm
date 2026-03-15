@@ -1,12 +1,12 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 
 import { SiteFooter } from "@/components/nav/site-footer";
 import { SiteNav } from "@/components/nav/site-nav";
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-sans",
@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${dmSans.variable} antialiased`}>
         <SiteNav />
         <main className="min-h-[calc(100vh-64px)]">{children}</main>
         <SiteFooter />
