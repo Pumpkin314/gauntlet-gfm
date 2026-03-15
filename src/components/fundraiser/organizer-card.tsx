@@ -73,7 +73,7 @@ export function OrganizerCard({
 
         {community && (
           <Link
-            href={`/c/${community.slug}`}
+            href={`/communities/${community.slug}`}
             className="mt-3 flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 group"
           >
             {community.logoUrl && (
@@ -120,7 +120,7 @@ export function OrganizerCard({
           )}
           {community && (
             <Link
-              href={`/c/${community.slug}`}
+              href={`/communities/${community.slug}`}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
               {community.name}
