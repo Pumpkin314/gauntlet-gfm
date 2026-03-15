@@ -42,3 +42,10 @@ npm run dev                  # Start dev server at localhost:3000
 - `1e3e8cb` — PR 3.1: Community page at /communities/[slug] with header, tabs, leaderboard, follow action
 - `6b92cb2` — PR 3.2: Profile page at /u/[username] with giving identity card, activity feed, follow
 - `c240fde` — PR 3.3: Shared components (fundraiser-card, user-avatar-link, community-badge-link)
+
+### TB4: Social Layer
+- `cea4599` — PR 4.1: Content card components for all 7 content types (video/Mux, image_story, milestone, pulse, spotlight, text, challenge)
+- `4a7c14e` — PR 4.2: Reaction system with toggle action, picker UI, micro-donate flow, CSS animations
+- `718b56a` — PR 4.3: Comments with query/action, collapsible section, donation-sourced badges
+- `387be5e` — PR 4.4: Content feeds integrated into fundraiser, community, and profile pages
+- `d1bd223` — PR 4.5: Content permalink page at /content/[postId] with reactions + expanded comments
