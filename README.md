@@ -104,3 +104,8 @@ MUX_TOKEN_SECRET      # Mux video (optional)
 
 ### TB6: Observability + Metrics Dashboard
 - `2481ee5` — PR 6.1–6.4: Server/client instrumentation, admin metrics dashboard at /admin/metrics, action tracking across all surfaces
+
+### TB7: Polish + Mobile + Demo Prep
+- `2514564` — PR 7.1–7.2: Mobile responsiveness (all pages), image optimization, CLS fixes, loading skeletons, docs
+- `49d6de8` — PR 7.3: Giving Wrapped card on profile, GFM-styled 404 page
+- `1e1f8ef` — PR 7.6: Loading/latency visibility — timedQuery, Server-Timing headers, slow query tracking, nav timing
