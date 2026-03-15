@@ -1,6 +1,6 @@
 'use client';
 
-import MuxPlayer from '@mux/mux-player-react/lazy';
+import MuxPlayer from '@mux/mux-player-react';
 import Image from 'next/image';
 
 interface VideoCardProps {
@@ -38,7 +38,6 @@ export function VideoCard({ playbackId, title, thumbnailUrl }: VideoCardProps) {
         playbackId={playbackId}
         metadata={{ video_title: title ?? undefined }}
         streamType="on-demand"
-        loading="viewport"
         thumbnailTime={0}
         poster={thumbUrl}
         style={{ width: '100%', height: '100%' }}
