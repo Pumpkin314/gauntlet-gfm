@@ -17,7 +17,8 @@ GoFundMe Reimagined is a full-stack crowdfunding platform built with Next.js 16,
 | Video | Mux | HLS streaming, adaptive bitrate, thumbnail generation |
 | Styling | Tailwind CSS + shadcn/ui | Utility-first with accessible, composable components |
 | Analytics | Custom (Postgres + Web Vitals) | Full observability without third-party dependencies |
-| Deployment | Vercel | Serverless functions, edge middleware, preview deploys |
+| Deployment | AWS via SST/OpenNext | CloudFront CDN, Lambda SSR, S3 static assets, SQS ISR revalidation |
+| CI/CD | GitHub Actions | Lint on PR, deploy on merge to main |
 
 ## Rendering Strategy
 
@@ -142,6 +143,28 @@ Auth.js v5 with JWT strategy and Google OAuth:
 - LCP distribution histogram with good/needs-improvement/poor thresholds
 - Recent events table (last 50 raw events)
 - 30-second auto-refresh
+
+## Deployment Architecture (AWS via SST/OpenNext)
+
+SST v3 uses OpenNext to compile the Next.js app into AWS-native resources:
+
+| Component | AWS Service | Purpose |
+|-----------|------------|---------|
+| CDN | CloudFront | Global edge caching, SSL termination |
+| Static Assets | S3 | JS/CSS/images, immutable cache headers |
+| SSR | Lambda | Server-side rendering for ISR pages |
+| Middleware | Lambda@Edge | Auth middleware, redirects |
+| ISR Revalidation | SQS + Lambda | Background page regeneration |
+| Image Optimization | Lambda | On-demand image resizing via `next/image` |
+
+All external services (Neon Postgres, Upstash Redis, Mux) connect over HTTPS — no VPC or private networking needed. Environment variables are injected at build time via `sst.config.ts`.
+
+**CI/CD:** GitHub Actions runs lint on every PR. On merge to `main`, it deploys to AWS via `npx sst deploy --stage production`. AWS credentials and app secrets are stored as GitHub Secrets.
+
+**Testing against AWS:** Set `PLAYWRIGHT_BASE_URL` to the CloudFront URL to run Playwright tests against the deployed stack:
+```bash
+PLAYWRIGHT_BASE_URL=https://<cloudfront-id>.cloudfront.net npx playwright test
+```
 
 ## Key Design Decisions
 

@@ -22,6 +22,10 @@ build/
 # Vercel
 .vercel
 
+# SST / OpenNext
+.sst/
+.open-next/
+
 # OS
 .DS_Store
 

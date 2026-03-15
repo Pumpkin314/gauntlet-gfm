@@ -67,6 +67,70 @@
 
 ---
 
+## AWS Deployment Setup (SST/OpenNext)
+
+### Prerequisites
+
+1. **AWS Account** with an IAM user (or OIDC provider for GitHub Actions)
+2. **IAM Permissions** for the deploying user/role:
+   - CloudFormation, S3, Lambda, CloudFront, SQS, IAM, SSM, ACM
+   - Or use `AdministratorAccess` for initial setup (scope down later)
+3. **Upstash Redis** REST credentials (HTTP-based, required for Lambda compatibility)
+
+### Local Deployment
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Set AWS credentials
+export AWS_ACCESS_KEY_ID=your-key
+export AWS_SECRET_ACCESS_KEY=your-secret
+
+# 3. Deploy to dev stage
+npx sst deploy --stage dev
+
+# 4. Note the CloudFront URL from the output
+# 5. Update NEXTAUTH_URL to the CloudFront URL, redeploy
+# 6. Add CloudFront URL to Google OAuth authorized redirect URIs
+```
+
+### GitHub Actions (CI/CD)
+
+Add these GitHub Secrets to your repository:
+
+| Secret | Description |
+|--------|------------|
+| `AWS_ACCESS_KEY_ID` | IAM user access key |
+| `AWS_SECRET_ACCESS_KEY` | IAM user secret key |
+| `DATABASE_URL` | Neon Postgres connection string |
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST endpoint |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token |
+| `NEXTAUTH_SECRET` | Auth.js secret (`openssl rand -base64 32`) |
+| `NEXTAUTH_URL` | CloudFront URL (e.g., `https://d1234.cloudfront.net`) |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+| `MUX_TOKEN_ID` | Mux API token ID |
+| `MUX_TOKEN_SECRET` | Mux API token secret |
+| `NEXT_PUBLIC_MUX_ENV_KEY` | Mux environment key |
+
+Pushes to `main` automatically deploy to production. PRs run lint checks only.
+
+### Teardown
+
+```bash
+npx sst remove --stage dev  # Removes all AWS resources for the dev stage
+```
+
+### Troubleshooting
+
+- **OAuth redirect fails:** Ensure `NEXTAUTH_URL` matches the CloudFront URL exactly, and the URL is added to Google OAuth authorized redirect URIs
+- **Cold starts slow:** Neon HTTP driver + Upstash HTTP means no connection pooling overhead — expect <2s cold starts
+- **ISR not revalidating:** Check SQS queue in AWS Console — revalidation requests should appear there
+- **OpenNext build fails:** Check Next.js version compatibility at https://opennext.js.org
+
+---
+
 ## GitHub Issues Setup Script
 
 Save this as `scripts/setup-github-issues.sh` and run with:

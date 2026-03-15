@@ -2,7 +2,7 @@
 
 A reimagined crowdfunding platform built with Next.js 16, React Server Components, and modern web technologies. Discover fundraisers, donate, and make a difference through a TikTok-style discovery feed.
 
-**Live:** https://gauntlet-gfm.vercel.app
+**Live:** Deployed on AWS via SST/OpenNext (CloudFront + Lambda)
 
 ## Features
 
@@ -20,8 +20,10 @@ A reimagined crowdfunding platform built with Next.js 16, React Server Component
 | Layer | Choice |
 |-------|--------|
 | Framework | Next.js 16, App Router, RSC, TypeScript |
-| Database | Vercel Postgres (Neon) + Drizzle ORM |
-| Cache | Upstash Redis |
+| Deployment | AWS (SST/OpenNext — CloudFront + Lambda + S3) |
+| CI/CD | GitHub Actions |
+| Database | Neon Postgres + Drizzle ORM |
+| Cache | Upstash Redis (HTTP) |
 | Auth | Auth.js v5 + Google OAuth |
 | Video | Mux (HLS streaming + thumbnails) |
 | Styling | Tailwind CSS + shadcn/ui |
@@ -53,14 +55,15 @@ npm run dev                  # Start dev server at localhost:3000
 ### Required Environment Variables
 
 ```
-DATABASE_URL          # Vercel Postgres / Neon connection string
-REDIS_URL             # Upstash Redis URL
-NEXTAUTH_SECRET       # openssl rand -base64 32
-NEXTAUTH_URL          # http://localhost:3000 (dev)
-GOOGLE_CLIENT_ID      # Google OAuth
-GOOGLE_CLIENT_SECRET  # Google OAuth
-MUX_TOKEN_ID          # Mux video (optional)
-MUX_TOKEN_SECRET      # Mux video (optional)
+DATABASE_URL              # Neon Postgres connection string
+UPSTASH_REDIS_REST_URL    # Upstash Redis REST endpoint
+UPSTASH_REDIS_REST_TOKEN  # Upstash Redis REST token
+NEXTAUTH_SECRET           # openssl rand -base64 32
+NEXTAUTH_URL              # http://localhost:3000 (dev)
+GOOGLE_CLIENT_ID          # Google OAuth
+GOOGLE_CLIENT_SECRET      # Google OAuth
+MUX_TOKEN_ID              # Mux video (optional)
+MUX_TOKEN_SECRET          # Mux video (optional)
 ```
 
 ## Documentation
@@ -109,3 +112,9 @@ MUX_TOKEN_SECRET      # Mux video (optional)
 - `2514564` — PR 7.1–7.2: Mobile responsiveness (all pages), image optimization, CLS fixes, loading skeletons, docs
 - `49d6de8` — PR 7.3: Giving Wrapped card on profile, GFM-styled 404 page
 - `1e1f8ef` — PR 7.6: Loading/latency visibility — timedQuery, Server-Timing headers, slow query tracking, nav timing
+
+### TB8: AWS Infrastructure Migration
+- PR 8.1: Swap ioredis → @upstash/redis (HTTP-based, serverless-native)
+- PR 8.2: SST v3 config for AWS deployment (CloudFront + Lambda + S3)
+- PR 8.3: GitHub Actions CI/CD pipeline (lint + deploy)
+- PR 8.4: Playwright remote testing support, docs update

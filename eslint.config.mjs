@@ -24,6 +24,8 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    // SST config uses triple-slash references required by the framework
+    'sst.config.ts',
   ]),
 ]);
 
