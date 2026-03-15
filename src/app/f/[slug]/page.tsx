@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 
+import { DonationsList } from '@/components/donations/donations-list';
+import { DonationsSkeleton } from '@/components/donations/donations-skeleton';
 import { Description } from '@/components/fundraiser/description';
 import { DonateSidebar } from '@/components/fundraiser/donate-sidebar';
 import { FundraiserMeta } from '@/components/fundraiser/fundraiser-meta';
@@ -115,6 +118,18 @@ export default async function FundraiserPage({
               category={fundraiser.category}
               taxDeductible={fundraiser.taxDeductible ?? false}
             />
+
+            <hr className="my-6 border-border" />
+
+            {/* Donations list */}
+            <section>
+              <h2 className="mb-4 text-lg font-bold text-gfm-dark">
+                Donations ({fundraiser.donationCount ?? 0})
+              </h2>
+              <Suspense fallback={<DonationsSkeleton />}>
+                <DonationsList fundraiserId={fundraiser.id} />
+              </Suspense>
+            </section>
           </div>
 
           {/* Right column — sticky sidebar (desktop only) */}
