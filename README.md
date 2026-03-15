@@ -49,3 +49,9 @@ npm run dev                  # Start dev server at localhost:3000
 - `718b56a` — PR 4.3: Comments with query/action, collapsible section, donation-sourced badges
 - `387be5e` — PR 4.4: Content feeds integrated into fundraiser, community, and profile pages
 - `d1bd223` — PR 4.5: Content permalink page at /content/[postId] with reactions + expanded comments
+
+### TB5: Fund You Page
+- `4bdc4fd` — PR 5.1: FYP layout with scroll-snap, full-viewport cards, right-rail actions, desktop centered column
+- `c4e23b1` — PR 5.2: Feed API route with ranking algorithm and cursor pagination
+- `c4b93ac` — PR 5.3: FYP client-side infinite scroll, quick donate sheet, scroll position persistence
+- `2543340` — PR 5.4: FYP entry points from nav, fundraiser, community, and profile pages
