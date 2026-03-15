@@ -12,7 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { formatRelativeDate } from '@/lib/format';
 
-import { FundraiserCard } from './fundraiser-card';
+import { FundraiserCard } from '@/components/shared/fundraiser-card';
 import { Leaderboard } from './leaderboard';
 
 // ---------- Types ----------

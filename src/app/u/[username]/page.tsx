@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { ActivityFeed } from '@/components/profile/activity-feed';
-import { FundraiserCard } from '@/components/profile/fundraiser-card';
+import { FundraiserCard } from '@/components/shared/fundraiser-card';
 import { GivingIdentityCard } from '@/components/profile/giving-identity-card';
 import { ProfileHeader } from '@/components/profile/profile-header';
 import { getCurrentUser } from '@/lib/auth';
@@ -108,6 +108,7 @@ export default async function ProfilePage({
                 key={fundraiser.id}
                 fundraiser={fundraiser}
                 community={community}
+                fixedWidth
               />
             ))}
           </div>

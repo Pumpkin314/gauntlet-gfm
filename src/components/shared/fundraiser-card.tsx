@@ -6,6 +6,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
 interface FundraiserCardProps {
   fundraiser: {
@@ -16,12 +17,19 @@ interface FundraiserCardProps {
     goalCents: number;
     donationCount: number | null;
   };
-  organizer: {
+  organizer?: {
     username: string;
     displayName: string;
     avatarUrl: string | null;
     image: string | null;
   } | null;
+  community?: {
+    slug: string;
+    name: string;
+    logoUrl: string | null;
+  } | null;
+  /** Fixed width for horizontal scroll layouts */
+  fixedWidth?: boolean;
 }
 
 function getInitials(name: string): string {
@@ -34,11 +42,18 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-export function FundraiserCard({ fundraiser, organizer }: FundraiserCardProps) {
+export function FundraiserCard({
+  fundraiser,
+  organizer,
+  community,
+  fixedWidth = false,
+}: FundraiserCardProps) {
   return (
     <Link
       href={`/f/${fundraiser.slug}`}
-      className="group block overflow-hidden rounded-xl border border-border bg-background transition-shadow hover:shadow-md"
+      className={`group block overflow-hidden rounded-xl border border-border bg-background transition-shadow hover:shadow-md ${
+        fixedWidth ? 'min-w-[260px] max-w-[320px] shrink-0' : ''
+      }`}
     >
       {/* Hero thumbnail (16:9) */}
       <div className="aspect-video w-full overflow-hidden bg-muted">
@@ -56,12 +71,11 @@ export function FundraiserCard({ fundraiser, organizer }: FundraiserCardProps) {
       </div>
 
       <div className="p-4">
-        {/* Title */}
         <h3 className="line-clamp-2 text-sm font-semibold text-gfm-dark group-hover:underline">
           {fundraiser.title}
         </h3>
 
-        {/* Organizer */}
+        {/* Organizer row */}
         {organizer && (
           <div className="mt-2 flex items-center gap-2">
             <Avatar size="sm">
@@ -78,6 +92,22 @@ export function FundraiserCard({ fundraiser, organizer }: FundraiserCardProps) {
             <span className="truncate text-xs text-muted-foreground">
               by {organizer.displayName}
             </span>
+          </div>
+        )}
+
+        {/* Community badge */}
+        {community && (
+          <div className="mt-1.5 flex items-center gap-1.5">
+            {community.logoUrl && (
+              <img
+                src={community.logoUrl}
+                alt={community.name}
+                className="h-4 w-4 rounded-full object-cover"
+              />
+            )}
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
+              {community.name}
+            </Badge>
           </div>
         )}
 
