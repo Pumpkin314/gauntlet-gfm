@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { cachedQuery } from '@/lib/cache';
+import { getServerTimingHeader } from '@/lib/db/instrumented';
 import { rankFeed } from '@/lib/feed/rank';
 import type { FeedOptions, FeedResponse } from '@/lib/feed/types';
 
@@ -69,12 +70,17 @@ export async function GET(request: NextRequest) {
     result = await rankFeed(feedOptions);
   }
 
-  return NextResponse.json(result, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': isFirstPage
-        ? 'public, s-maxage=30, stale-while-revalidate=60'
-        : 'public, s-maxage=10, stale-while-revalidate=30',
-    },
-  });
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Cache-Control': isFirstPage
+      ? 'public, s-maxage=30, stale-while-revalidate=60'
+      : 'public, s-maxage=10, stale-while-revalidate=30',
+  };
+
+  const serverTiming = getServerTimingHeader();
+  if (serverTiming) {
+    headers['Server-Timing'] = serverTiming;
+  }
+
+  return NextResponse.json(result, { headers });
 }

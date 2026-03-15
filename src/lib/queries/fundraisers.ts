@@ -2,20 +2,23 @@ import { eq } from 'drizzle-orm';
 
 import { cachedQuery } from '@/lib/cache';
 import { db } from '@/lib/db';
+import { timedQuery } from '@/lib/db/instrumented';
 import { communities, fundraisers, users } from '@/lib/db/schema';
 
 export async function getFundraiserBySlug(slug: string) {
   return cachedQuery(`fundraiser:${slug}`, 60, async () => {
-    const result = await db
-      .select({
-        fundraiser: fundraisers,
-        organizer: users,
-        community: communities,
-      })
-      .from(fundraisers)
-      .leftJoin(users, eq(fundraisers.organizerId, users.id))
-      .leftJoin(communities, eq(fundraisers.communityId, communities.id))
-      .where(eq(fundraisers.slug, slug));
+    const result = await timedQuery('fundraiser.getBySlug', () =>
+      db
+        .select({
+          fundraiser: fundraisers,
+          organizer: users,
+          community: communities,
+        })
+        .from(fundraisers)
+        .leftJoin(users, eq(fundraisers.organizerId, users.id))
+        .leftJoin(communities, eq(fundraisers.communityId, communities.id))
+        .where(eq(fundraisers.slug, slug)),
+    );
 
     return result[0] ?? null;
   });

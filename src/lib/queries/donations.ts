@@ -1,22 +1,25 @@
 import { desc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
+import { timedQuery } from "@/lib/db/instrumented";
 import { donations, users } from "@/lib/db/schema";
 
 export async function getRecentDonations(
   fundraiserId: string,
   limit = 10,
 ) {
-  return db
-    .select({
-      donation: donations,
-      donor: users,
-    })
-    .from(donations)
-    .leftJoin(users, eq(donations.donorId, users.id))
-    .where(eq(donations.fundraiserId, fundraiserId))
-    .orderBy(desc(donations.createdAt))
-    .limit(limit);
+  return timedQuery('donations.getRecent', () =>
+    db
+      .select({
+        donation: donations,
+        donor: users,
+      })
+      .from(donations)
+      .leftJoin(users, eq(donations.donorId, users.id))
+      .where(eq(donations.fundraiserId, fundraiserId))
+      .orderBy(desc(donations.createdAt))
+      .limit(limit),
+  );
 }
 
 export async function getTopDonations(

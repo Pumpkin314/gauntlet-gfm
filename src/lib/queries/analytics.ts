@@ -207,6 +207,76 @@ export async function getRecentEvents(limit = 50): Promise<RecentEvent[]> {
     .limit(limit);
 }
 
+// ---------------------------------------------------------------------------
+// Slow query observability
+// ---------------------------------------------------------------------------
+
+export interface SlowQueryEntry {
+  id: string;
+  label: string;
+  durationMs: number;
+  createdAt: Date | null;
+}
+
+/** Fetch the most recent slow query events, ordered by duration descending. */
+export async function getSlowQueries(limit = 20): Promise<SlowQueryEntry[]> {
+  const rows = await db
+    .select({
+      id: analyticsEvents.id,
+      eventData: analyticsEvents.eventData,
+      createdAt: analyticsEvents.createdAt,
+    })
+    .from(analyticsEvents)
+    .where(eq(analyticsEvents.eventType, 'slow_query'))
+    .orderBy(desc(analyticsEvents.createdAt))
+    .limit(limit);
+
+  return rows.map((r) => {
+    const data = r.eventData as Record<string, unknown> | null;
+    return {
+      id: r.id,
+      label: String(data?.label ?? 'unknown'),
+      durationMs: Number(data?.durationMs ?? 0),
+      createdAt: r.createdAt,
+    };
+  });
+}
+
+export interface QueryTimingRow {
+  label: string;
+  count: number;
+  avgMs: number;
+  p50Ms: number;
+  p95Ms: number;
+}
+
+/**
+ * Aggregate slow_query analytics events by label.
+ * Returns average, P50, and P95 duration plus count per query label.
+ */
+export async function getQueryTimingSummary(): Promise<QueryTimingRow[]> {
+  const rows = await db
+    .select({
+      label: sql<string>`${analyticsEvents.eventData}->>'label'`,
+      count: sql<number>`count(*)::int`,
+      avgMs: sql<number>`round(avg((${analyticsEvents.eventData}->>'durationMs')::float))::int`,
+      p50Ms: sql<number>`round(percentile_cont(0.5) within group (order by (${analyticsEvents.eventData}->>'durationMs')::float))::int`,
+      p95Ms: sql<number>`round(percentile_cont(0.95) within group (order by (${analyticsEvents.eventData}->>'durationMs')::float))::int`,
+    })
+    .from(analyticsEvents)
+    .where(eq(analyticsEvents.eventType, 'slow_query'))
+    .groupBy(sql`${analyticsEvents.eventData}->>'label'`)
+    .orderBy(sql`count(*) desc`);
+
+  return rows.map((r) => ({
+    label: r.label ?? 'unknown',
+    count: r.count,
+    avgMs: r.avgMs ?? 0,
+    p50Ms: r.p50Ms ?? 0,
+    p95Ms: r.p95Ms ?? 0,
+  }));
+}
+
 /** Get daily event counts for the last N days (for time series) */
 export async function getDailyEventCounts(days = 7) {
   const since = new Date();

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { getCurrentUser } from '@/lib/auth';
 import { invalidateCache } from '@/lib/cache';
 import { db } from '@/lib/db';
+import { getServerTimingHeader } from '@/lib/db/instrumented';
 import { donations, fundraisers, users } from '@/lib/db/schema';
 
 const donateSchema = z.object({
@@ -128,11 +129,20 @@ export async function POST(req: NextRequest) {
       // best-effort
     }
 
-    return NextResponse.json({
-      success: true,
-      donationId: result!.id,
-      fundraiserSlug: fundraiser.slug,
-    });
+    const responseHeaders: Record<string, string> = {};
+    const serverTiming = getServerTimingHeader();
+    if (serverTiming) {
+      responseHeaders['Server-Timing'] = serverTiming;
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        donationId: result!.id,
+        fundraiserSlug: fundraiser.slug,
+      },
+      { headers: responseHeaders },
+    );
   } catch (err) {
     console.error('[POST /api/donate] Unhandled error:', err);
     console.error('[POST /api/donate]', err);

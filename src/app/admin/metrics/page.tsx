@@ -7,12 +7,16 @@ import {
   getContentEngagement,
   getWebVitalsDistribution,
   getRecentEvents,
+  getSlowQueries,
+  getQueryTimingSummary,
 } from '@/lib/queries/analytics';
 import { MetricCards } from '@/components/admin/metric-cards';
 import { ActionsChart } from '@/components/admin/actions-chart';
 import { ContentChart } from '@/components/admin/content-chart';
 import { WebVitalsChart } from '@/components/admin/web-vitals-chart';
 import { RecentEventsTable } from '@/components/admin/recent-events-table';
+import { SlowQueriesTable } from '@/components/admin/slow-queries-table';
+import { QueryTimingTable } from '@/components/admin/query-timing-table';
 import { DashboardRefresh } from '@/components/admin/dashboard-refresh';
 
 export const revalidate = 0; // Always fresh data for admin dashboard
@@ -33,13 +37,15 @@ export default async function AdminMetricsPage() {
     );
   }
 
-  const [summary, actions, content, lcpDistribution, recentEvents] =
+  const [summary, actions, content, lcpDistribution, recentEvents, slowQueries, queryTimingSummary] =
     await Promise.all([
       getMetricsSummary(),
       getActionBreakdown(),
       getContentEngagement(),
       getWebVitalsDistribution('LCP'),
       getRecentEvents(50),
+      getSlowQueries(20),
+      getQueryTimingSummary(),
     ]);
 
   return (
@@ -76,6 +82,16 @@ export default async function AdminMetricsPage() {
             lcpData={lcpDistribution}
             vitals={summary.webVitals}
           />
+        </Suspense>
+      </div>
+
+      {/* Query Performance */}
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-muted" />}>
+          <SlowQueriesTable queries={slowQueries} />
+        </Suspense>
+        <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-muted" />}>
+          <QueryTimingTable data={queryTimingSummary} />
         </Suspense>
       </div>
 

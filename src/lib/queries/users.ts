@@ -2,6 +2,7 @@ import { eq, sql, desc, count, countDistinct } from 'drizzle-orm';
 
 import { cachedQuery } from '@/lib/cache';
 import { db } from '@/lib/db';
+import { timedQuery } from '@/lib/db/instrumented';
 import {
   communities,
   communityMembers,
@@ -16,10 +17,12 @@ import {
  */
 export async function getUserByUsername(username: string) {
   return cachedQuery(`user:${username}`, 60, async () => {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.username, username));
+    const [user] = await timedQuery('user.getByUsername', () =>
+      db
+        .select()
+        .from(users)
+        .where(eq(users.username, username)),
+    );
 
     return user ?? null;
   });

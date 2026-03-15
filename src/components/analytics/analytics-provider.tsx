@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 
 import { flushAnalytics } from '@/lib/analytics/beacon';
+import { captureNavigationTiming } from '@/lib/analytics/navigation-timing';
 import { trackPageView } from '@/lib/analytics/page-view';
 import { reportWebVitals } from '@/lib/analytics/web-vitals';
 
@@ -18,6 +19,7 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     reportWebVitals();
     trackPageView();
+    captureNavigationTiming();
 
     const handleBeforeUnload = () => {
       flushAnalytics();

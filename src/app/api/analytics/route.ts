@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { db } from '@/lib/db';
+import { getServerTimingHeader } from '@/lib/db/instrumented';
 import { analyticsEvents } from '@/lib/db/schema';
 
 const MAX_EVENTS_PER_BATCH = 50;
@@ -53,7 +54,13 @@ export async function POST(req: NextRequest) {
       })),
     );
 
-    return NextResponse.json({ success: true });
+    const responseHeaders: Record<string, string> = {};
+    const serverTiming = getServerTimingHeader();
+    if (serverTiming) {
+      responseHeaders['Server-Timing'] = serverTiming;
+    }
+
+    return NextResponse.json({ success: true }, { headers: responseHeaders });
   } catch (err) {
     console.error('[POST /api/analytics] Unhandled error:', err);
     return NextResponse.json(

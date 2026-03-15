@@ -1,6 +1,7 @@
 import { desc, eq, lt, sql, and, not } from 'drizzle-orm';
 
 import { db } from '@/lib/db';
+import { timedQuery } from '@/lib/db/instrumented';
 import {
   communities,
   contentPosts,
@@ -117,51 +118,53 @@ function interleaveItems(items: FeedItem[]): FeedItem[] {
 export async function rankFeed(options: FeedOptions): Promise<FeedResponse> {
   const { source, id, cursor, limit } = options;
 
-  // We'll fetch more than `limit` to allow for interleaving, then trim
-  const fetchLimit = limit + 1; // +1 for nextCursor detection
+  return timedQuery(`feed.rank.${source}`, async () => {
+    // We'll fetch more than `limit` to allow for interleaving, then trim
+    const fetchLimit = limit + 1; // +1 for nextCursor detection
 
-  const cursorCondition = cursor
-    ? lt(contentPosts.createdAt, new Date(cursor))
-    : undefined;
+    const cursorCondition = cursor
+      ? lt(contentPosts.createdAt, new Date(cursor))
+      : undefined;
 
-  const publishedCondition = eq(contentPosts.status, 'published');
+    const publishedCondition = eq(contentPosts.status, 'published');
 
-  let items: FeedItem[];
+    let items: FeedItem[];
 
-  switch (source) {
-    case 'fundraiser': {
-      items = await fetchFundraiserFeed(id, cursorCondition, publishedCondition, fetchLimit);
-      break;
+    switch (source) {
+      case 'fundraiser': {
+        items = await fetchFundraiserFeed(id, cursorCondition, publishedCondition, fetchLimit);
+        break;
+      }
+      case 'community': {
+        items = await fetchCommunityFeed(id, cursorCondition, publishedCondition, fetchLimit);
+        break;
+      }
+      case 'profile': {
+        items = await fetchProfileFeed(id, cursorCondition, publishedCondition, fetchLimit);
+        break;
+      }
+      case 'discover':
+      default: {
+        items = await fetchDiscoverFeed(cursorCondition, publishedCondition, fetchLimit);
+        break;
+      }
     }
-    case 'community': {
-      items = await fetchCommunityFeed(id, cursorCondition, publishedCondition, fetchLimit);
-      break;
-    }
-    case 'profile': {
-      items = await fetchProfileFeed(id, cursorCondition, publishedCondition, fetchLimit);
-      break;
-    }
-    case 'discover':
-    default: {
-      items = await fetchDiscoverFeed(cursorCondition, publishedCondition, fetchLimit);
-      break;
-    }
-  }
 
-  // Determine pagination cursor
-  let nextCursor: string | null = null;
-  if (items.length > limit) {
-    items = items.slice(0, limit);
-    const lastItem = items[items.length - 1];
-    nextCursor = lastItem.post.createdAt
-      ? lastItem.post.createdAt.toISOString()
-      : null;
-  }
+    // Determine pagination cursor
+    let nextCursor: string | null = null;
+    if (items.length > limit) {
+      items = items.slice(0, limit);
+      const lastItem = items[items.length - 1];
+      nextCursor = lastItem.post.createdAt
+        ? lastItem.post.createdAt.toISOString()
+        : null;
+    }
 
-  // Interleave for content-type diversity
-  items = interleaveItems(items);
+    // Interleave for content-type diversity
+    items = interleaveItems(items);
 
-  return { items, nextCursor };
+    return { items, nextCursor };
+  });
 }
 
 /**

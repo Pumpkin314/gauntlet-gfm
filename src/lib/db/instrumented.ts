@@ -2,6 +2,11 @@
 // Timed query wrapper for observability
 // ---------------------------------------------------------------------------
 
+import { trackEvent } from '@/lib/analytics/track';
+
+/** Threshold in ms above which a query is considered slow. */
+const SLOW_QUERY_THRESHOLD_MS = 500;
+
 interface QueryTiming {
   label: string;
   durationMs: number;
@@ -14,6 +19,7 @@ let timings: QueryTiming[] = [];
  * Execute an async query function while measuring its duration.
  * In development, logs the label and duration to the console.
  * Timing data is buffered and can be retrieved via `getTimings()`.
+ * Queries exceeding 500ms are automatically tracked as `slow_query` analytics events.
  */
 export async function timedQuery<T>(
   label: string,
@@ -30,6 +36,16 @@ export async function timedQuery<T>(
       console.log(
         `[db] ${label} completed in ${durationMs.toFixed(1)}ms`,
       );
+    }
+
+    // Fire-and-forget slow query tracking
+    if (durationMs > SLOW_QUERY_THRESHOLD_MS) {
+      trackEvent({
+        eventType: 'slow_query',
+        eventData: { label, durationMs: Math.round(durationMs) },
+      }).catch(() => {
+        // Never let analytics tracking break the query flow
+      });
     }
   }
 }

@@ -2,6 +2,7 @@ import { desc, eq } from 'drizzle-orm';
 
 import { cachedQuery } from '@/lib/cache';
 import { db } from '@/lib/db';
+import { timedQuery } from '@/lib/db/instrumented';
 import {
   communities,
   communityMembers,
@@ -15,10 +16,12 @@ import {
  */
 export async function getCommunityBySlug(slug: string) {
   return cachedQuery(`community:${slug}`, 60, async () => {
-    const [result] = await db
-      .select()
-      .from(communities)
-      .where(eq(communities.slug, slug));
+    const [result] = await timedQuery('community.getBySlug', () =>
+      db
+        .select()
+        .from(communities)
+        .where(eq(communities.slug, slug)),
+    );
 
     return result ?? null;
   });
