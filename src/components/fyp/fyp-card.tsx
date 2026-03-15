@@ -196,7 +196,7 @@ export function FYPCard({ post, author, fundraiser, community }: FYPCardProps) {
   return (
     <div
       className="relative h-[100dvh] w-full snap-start"
-      style={{ scrollSnapAlign: 'start' }}
+      style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
     >
       {/* Background media */}
       <FYPMedia post={post} />

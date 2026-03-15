@@ -162,7 +162,7 @@ export function FYPShell({
         <div
           ref={scrollContainerRef}
           className="h-full w-full snap-y snap-mandatory overflow-y-scroll"
-          style={{ scrollSnapType: 'y mandatory' }}
+          style={{ scrollSnapType: 'y mandatory', overscrollBehaviorY: 'contain', scrollSnapStop: 'always' } as React.CSSProperties}
           onScroll={handleScroll}
         >
           {items.map((item) => (

@@ -107,15 +107,18 @@ export async function createDonation(
     return donation;
   });
 
-  // 6. Invalidate Redis cache
+  // 6. Invalidate Redis cache + bust ISR cache (best-effort)
   try {
     await invalidateCache('fundraiser:*');
   } catch {
     // Cache invalidation is best-effort; don't fail the donation
   }
 
-  // 7. Bust ISR cache
-  revalidatePath(`/f/${fundraiser.slug}`);
+  try {
+    revalidatePath(`/f/${fundraiser.slug}`);
+  } catch {
+    // ISR revalidation is best-effort
+  }
 
   return { success: true, donationId: result.id };
 }
