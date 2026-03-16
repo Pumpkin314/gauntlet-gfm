@@ -14,6 +14,9 @@ export default $config({
         DATABASE_URL: process.env.DATABASE_URL!,
         UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL!,
         UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN!,
+        // Auth.js v5 uses AUTH_SECRET/AUTH_URL as primary env vars
+        AUTH_SECRET: process.env.NEXTAUTH_SECRET!,
+        AUTH_URL: process.env.NEXTAUTH_URL!,
         NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET!,
         NEXTAUTH_URL: process.env.NEXTAUTH_URL!,
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
