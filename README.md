@@ -2,7 +2,7 @@
 
 A reimagined crowdfunding platform built with Next.js 16, React Server Components, and modern web technologies. Discover fundraisers, donate, and make a difference through a TikTok-style discovery feed.
 
-**Live:** https://gauntlet-gfm.vercel.app (Vercel) — AWS via SST/OpenNext configured, pending first deploy
+**Live:** https://gauntlet-gfm.vercel.app (Vercel) | https://d220wjvplh2h35.cloudfront.net (AWS/CloudFront)
 
 ## Features
 
